@@ -1,12 +1,13 @@
 // src/parent/dto/create-parent.dto.ts
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
 
 export class CreateParentDto {
-  @IsNotEmpty()
+  @IsString()
+  parent_id: string;
+
   @IsString()
   parent_name: string;
 
-  @IsNotEmpty()
-  @IsString()
-  user_id: string;
+  @IsNumber()
+  user_id: number; 
 }

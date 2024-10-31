@@ -1,4 +1,3 @@
-
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../entities/base.entity';
 import { User } from '../../users/entities/user.entity';
@@ -11,10 +10,11 @@ export class Parent extends BaseEntity {
   @Column({ length: 80 })
   parent_name: string;
 
-  @Column({ length: 45 })
-  user_id: string;
+  
+  @Column() 
+  user_id: number; 
 
   @OneToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'user_id' }) 
   user: User;
 }

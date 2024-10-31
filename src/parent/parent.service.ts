@@ -18,6 +18,7 @@ export class ParentService {
     return this.parentRepository.save(parent);
   }
 
+
   async findAll(): Promise<Parent[]> {
     return this.parentRepository.find();
   }

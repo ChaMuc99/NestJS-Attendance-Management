@@ -1,4 +1,3 @@
-
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../entities/base.entity';
 import { Class } from '../../class/entities/class.entity';
@@ -6,19 +5,19 @@ import { Parent } from '../../parent/entities/parent.entity';
 
 @Entity('student')
 export class Student extends BaseEntity {
-  @Column({ length: 45 })
+  @Column() 
   student_id: string;
 
-  @Column({ length: 80 })
+  @Column() 
   student_name: string;
 
-  @Column({ length: 45 })
+  @Column() 
   user_id: string;
 
-  @Column({ length: 45 })
+  @Column() 
   class_id: string;
 
-  @Column({ length: 45 })
+  @Column() 
   parent_id: string;
 
   @ManyToOne(() => Class)
