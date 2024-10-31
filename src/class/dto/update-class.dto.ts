@@ -1,7 +1,5 @@
 // src/class/dto/update-class.dto.ts
-import { IsOptional, IsString } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateClassDto } from './create-class.dto';
 
-export class UpdateClassDto {
-  @IsOptional()
- 
-}
+export class UpdateClassDto extends PartialType(CreateClassDto) {}
