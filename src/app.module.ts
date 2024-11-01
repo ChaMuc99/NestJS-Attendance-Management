@@ -21,6 +21,7 @@ import { StudentModule } from './student/student.module';
       database: 'attendancedb',
       autoLoadEntities: true,
       synchronize: true,
+    
     }),
     UsersModule,
     ParentModule,

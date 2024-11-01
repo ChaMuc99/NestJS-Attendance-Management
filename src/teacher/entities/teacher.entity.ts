@@ -5,15 +5,14 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Teacher {
-  @PrimaryGeneratedColumn()
-  id: string;
 
-  @Column()
+  @PrimaryColumn()
   teacher_id: string;
 
   @Column()
@@ -23,6 +22,6 @@ export class Teacher {
   teacher_department: string;
 
   @OneToOne(() => User, (user) => user.teacher, { eager: true })
-  @JoinColumn() // This will create the foreign key relationship
+  @JoinColumn() 
   user: User;
 }
