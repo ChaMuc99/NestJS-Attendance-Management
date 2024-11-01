@@ -1,20 +1,37 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+// src/teacher/dto/create-teacher.dto.ts
+import { IsString, IsDate, IsEmail, IsNotEmpty } from 'class-validator';
 
 export class CreateTeacherDto {
-  @IsNotEmpty()
   @IsString()
   teacher_id: string;
 
-  @IsNotEmpty()
   @IsString()
   teacher_name: string;
 
-  @IsNotEmpty()
-  @IsNumber() // Ensure this is a number
-  user_id: number; // Ensure this matches the Teacher entity
-
-  @IsNotEmpty()
   @IsString()
   teacher_department: string;
+
+  // User-related fields
+
+  @IsNotEmpty()
+ 
+  user_id: number;
+
+  @IsString()
+  user_name: string;
+
+  @IsDate()
+  user_dateofbirth: Date;
+
+  @IsString()
+  user_gender: string;
+
+  @IsString()
+  user_phone: string;
+
+  @IsEmail()
+  user_email: string;
+
+  @IsString()
+  user_password: string;
 }
-  

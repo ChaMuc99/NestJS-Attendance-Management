@@ -27,12 +27,5 @@ export class AuthService {
         };
     }
 
-    async register(userData: Partial<User>): Promise<User> {
-        // Hash the user's password before saving
-        if (userData.user_password) {
-            userData.user_password = await bcrypt.hash(userData.user_password, 10);
-        }
-        const newUser = this.userService.createUser(userData as User);
-        return newUser;
-    }
+
 }

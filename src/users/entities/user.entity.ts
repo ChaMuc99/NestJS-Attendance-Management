@@ -1,27 +1,33 @@
 // src/users/entities/user.entity.ts
-import { Entity, Column } from 'typeorm';
-import { BaseEntity } from '../../entities/base.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import { Teacher } from '../../teacher/entities/teacher.entity';
 
-@Entity('user')
-export class User extends BaseEntity {
-  @Column({ length: 80 })
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: string;
+
+  @Column()
   user_name: string;
 
-  @Column({ type: 'date' })
+  @Column()
   user_dateofbirth: Date;
 
-  @Column({ length: 20 })
+  @Column()
   user_gender: string;
 
-  @Column({ length: 80 })
+  @Column()
   user_phone: string;
 
-  @Column({ length: 100, unique: true })
+  @Column()
   user_email: string;
 
-  @Column({ length: 255 })
+  @Column()
   user_password: string;
 
-  @Column({ length: 50 })
+  @Column() 
   role: string; 
+
+  @OneToOne(() => Teacher, teacher => teacher.user)
+  teacher: Teacher; 
 }

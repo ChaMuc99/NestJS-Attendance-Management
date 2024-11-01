@@ -7,11 +7,6 @@ import { User } from '../users/entities/user.entity';
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-    @Post('register')
-    async register(@Body() userData: Partial<User>): Promise<User> {
-        return this.authService.register(userData);
-    }
-
     @Post('login')
     async login(@Body() loginData: { email: string; password: string }) {
         const user = await this.authService.validateUser(loginData.email, loginData.password);
