@@ -5,19 +5,19 @@ import { Parent } from '../../parent/entities/parent.entity';
 
 @Entity('student')
 export class Student extends BaseEntity {
-  @Column() 
+  @Column()
   student_id: string;
 
-  @Column() 
+  @Column()
   student_name: string;
 
-  @Column() 
+  @Column()
   user_id: string;
 
-  @Column() 
+  @Column()
   class_id: string;
 
-  @Column() 
+  @Column()
   parent_id: string;
 
   @ManyToOne(() => Class)

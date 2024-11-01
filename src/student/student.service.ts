@@ -23,22 +23,27 @@ export class StudentService {
   }
 
   async findOne(id: string): Promise<Student> {
-    const student = await this.studentRepository.findOne({where: {student_id: id}});
-    if(!student) {
+    const student = await this.studentRepository.findOne({
+      where: { student_id: id },
+    });
+    if (!student) {
       throw new NotFoundException(`Student with Id ${id} not found`);
     }
     return student;
   }
 
-  async update(id: string, updateStudentDto: UpdateStudentDto): Promise<Student> {
+  async update(
+    id: string,
+    updateStudentDto: UpdateStudentDto,
+  ): Promise<Student> {
     await this.studentRepository.update(id, updateStudentDto);
-    return this.findOne(id)
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
     const deleteResult = await this.studentRepository.delete(id);
     if (!deleteResult.affected) {
-      throw new NotFoundException(`Student with ID ${id} not found`)
+      throw new NotFoundException(`Student with ID ${id} not found`);
     }
   }
 }

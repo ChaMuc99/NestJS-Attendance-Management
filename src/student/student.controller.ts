@@ -1,9 +1,19 @@
 // src/student/student.controller.ts
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
-import { Student } from './entities/student.entity'
+import { Student } from './entities/student.entity';
 
 @Controller('students')
 export class StudentController {
@@ -26,7 +36,10 @@ export class StudentController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto): Promise<Student> {
+  update(
+    @Param('id') id: string,
+    @Body() updateStudentDto: UpdateStudentDto,
+  ): Promise<Student> {
     return this.studentService.update(id, updateStudentDto);
   }
 

@@ -10,11 +10,10 @@ export class Parent extends BaseEntity {
   @Column({ length: 80 })
   parent_name: string;
 
-  
-  @Column() 
-  user_id: number; 
+  @Column()
+  user_id: number;
 
   @OneToOne(() => User)
-  @JoinColumn({ name: 'user_id' }) 
+  @JoinColumn({ name: 'user_id' })
   user: User;
 }

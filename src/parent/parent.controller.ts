@@ -1,5 +1,15 @@
 // src/parent/parent.controller.ts
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ParentService } from './parent.service';
 import { CreateParentDto } from './dto/create-parent.dto';
 import { UpdateParentDto } from './dto/update-parent.dto';
@@ -26,7 +36,10 @@ export class ParentController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateParentDto: UpdateParentDto): Promise<Parent> {
+  update(
+    @Param('id') id: string,
+    @Body() updateParentDto: UpdateParentDto,
+  ): Promise<Parent> {
     return this.parentService.update(id, updateParentDto);
   }
 

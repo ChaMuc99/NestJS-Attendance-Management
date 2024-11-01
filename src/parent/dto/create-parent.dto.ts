@@ -9,5 +9,5 @@ export class CreateParentDto {
   parent_name: string;
 
   @IsNumber()
-  user_id: number; 
+  user_id: number;
 }

@@ -25,9 +25,9 @@ export class User {
   @Column()
   user_password: string;
 
-  @Column() 
-  role: string; 
+  @Column()
+  role: string;
 
-  @OneToOne(() => Teacher, teacher => teacher.user)
-  teacher: Teacher; 
+  @OneToOne(() => Teacher, (teacher) => teacher.user)
+  teacher: Teacher;
 }

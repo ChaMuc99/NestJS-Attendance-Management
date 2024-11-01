@@ -18,13 +18,14 @@ export class ParentService {
     return this.parentRepository.save(parent);
   }
 
-
   async findAll(): Promise<Parent[]> {
     return this.parentRepository.find();
   }
 
   async findOne(id: string): Promise<Parent> {
-    const parent = await this.parentRepository.findOne({ where: { parent_id: id } });
+    const parent = await this.parentRepository.findOne({
+      where: { parent_id: id },
+    });
     if (!parent) {
       throw new NotFoundException(`Parent with ID ${id} not found`);
     }

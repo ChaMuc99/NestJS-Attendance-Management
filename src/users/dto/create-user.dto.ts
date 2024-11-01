@@ -12,7 +12,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   user_password: string;
 
-
   @IsNotEmpty()
   user_dateofbirth: Date;
 
@@ -22,5 +21,5 @@ export class CreateUserDto {
   @IsNotEmpty()
   user_phone: string;
 
-  role:string;
+  role: string;
 }

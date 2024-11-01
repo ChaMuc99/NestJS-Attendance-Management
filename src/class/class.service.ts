@@ -23,7 +23,9 @@ export class ClassService {
   }
 
   async findOne(id: string): Promise<Class> {
-    const classEntity = await this.classRepository.findOne({ where: { class_id: id } });
+    const classEntity = await this.classRepository.findOne({
+      where: { class_id: id },
+    });
     if (!classEntity) {
       throw new NotFoundException(`Class with ID ${id} not found`);
     }

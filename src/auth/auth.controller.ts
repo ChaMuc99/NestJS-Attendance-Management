@@ -5,14 +5,17 @@ import { User } from '../users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-    @Post('login')
-    async login(@Body() loginData: { email: string; password: string }) {
-        const user = await this.authService.validateUser(loginData.email, loginData.password);
-        if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
-        }
-        return this.authService.login(user);
+  @Post('login')
+  async login(@Body() loginData: { email: string; password: string }) {
+    const user = await this.authService.validateUser(
+      loginData.email,
+      loginData.password,
+    );
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
+    return this.authService.login(user);
+  }
 }

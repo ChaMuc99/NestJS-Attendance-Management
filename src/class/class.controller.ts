@@ -1,5 +1,15 @@
 // src/class/class.controller.ts
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ClassService } from './class.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
@@ -26,7 +36,10 @@ export class ClassController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateClassDto: UpdateClassDto): Promise<Class> {
+  update(
+    @Param('id') id: string,
+    @Body() updateClassDto: UpdateClassDto,
+  ): Promise<Class> {
     return this.classService.update(id, updateClassDto);
   }
 

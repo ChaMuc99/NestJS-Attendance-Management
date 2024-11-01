@@ -13,14 +13,14 @@ import { StudentModule } from './student/student.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'postgres', 
-      host: 'localhost', 
-      port: 5432, 
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
       username: 'postgres',
       password: '123123',
-      database: 'attendancedb', 
-      autoLoadEntities: true, 
-      synchronize: true, 
+      database: 'attendancedb',
+      autoLoadEntities: true,
+      synchronize: true,
     }),
     UsersModule,
     ParentModule,
@@ -28,7 +28,7 @@ import { StudentModule } from './student/student.module';
     ClassModule,
     StudentModule,
   ],
-  controllers: [AppController], 
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
