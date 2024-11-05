@@ -6,7 +6,4 @@ export class CreateClassDto {
   @IsString()
   class_name: string;
 
-  @IsNotEmpty()
-  @IsString()
-  teacher_id: string;
 }

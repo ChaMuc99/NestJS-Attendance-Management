@@ -1,17 +1,17 @@
-import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from '../../entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('parent')
 export class Parent extends BaseEntity {
-  @Column({ length: 45 })
+  @PrimaryColumn({ length: 45 })
   parent_id: string;
 
   @Column({ length: 80 })
   parent_name: string;
 
   @Column()
-  user_id: number;
+  user_id: string;
 
   @OneToOne(() => User)
   @JoinColumn({ name: 'user_id' })

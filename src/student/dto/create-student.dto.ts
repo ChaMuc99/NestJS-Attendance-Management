@@ -1,20 +1,22 @@
-// src/student/dto/create-student.dto.ts
-import { IsNotEmpty, IsString } from 'class-validator';
-
 export class CreateStudentDto {
-  @IsNotEmpty()
-  @IsString()
+  student_id: string;
   student_name: string;
+  class: {
+    class_id: string;
+    class_name: string;  
+    teacher_id?: string;  
 
-  @IsNotEmpty()
-  @IsString()
-  user_id: string;
-
-  @IsNotEmpty()
-  @IsString()
-  class_id: string;
-
-  @IsNotEmpty()
-  @IsString()
-  parent_id: string;
+  };
+  parent: {
+    parent_id: string;
+    parent_name: string;  
+  
+  };
+  user: {
+    user_id: string;          
+    user_name: string;  
+    user_dateofbirth?: Date; 
+    user_gender?: string;    
+  
+  };
 }

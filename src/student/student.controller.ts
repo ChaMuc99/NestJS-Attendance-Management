@@ -22,7 +22,7 @@ export class StudentController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createStudentDto: CreateStudentDto): Promise<Student> {
-    return this.studentService.create(createStudentDto);
+    return this.studentService.createStudent(createStudentDto);
   }
 
   @Get()

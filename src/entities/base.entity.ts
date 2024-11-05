@@ -6,9 +6,7 @@ import {
 } from 'typeorm';
 
 export abstract class BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+ 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

@@ -1,4 +1,3 @@
-// src/parent/parent.controller.ts
 import {
   Controller,
   Get,
@@ -9,7 +8,9 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express'; // Importing Response from express
 import { ParentService } from './parent.service';
 import { CreateParentDto } from './dto/create-parent.dto';
 import { UpdateParentDto } from './dto/update-parent.dto';
@@ -21,31 +22,41 @@ export class ParentController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createParentDto: CreateParentDto): Promise<Parent> {
-    return this.parentService.create(createParentDto);
+  async create(
+    @Body() createParentDto: CreateParentDto,
+    @Res() res: Response, // Injecting Express response
+  ): Promise<Response<Parent>> {
+    const parent = await this.parentService.create(createParentDto);
+    return res.status(HttpStatus.CREATED).json(parent); // Sending structured response
   }
 
   @Get()
-  findAll(): Promise<Parent[]> {
-    return this.parentService.findAll();
+  async findAll(@Res() res: Response): Promise<Response<Parent[]>> {
+    const parents = await this.parentService.findAll();
+    return res.status(HttpStatus.OK).json(parents); // Sending structured response
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Parent> {
-    return this.parentService.findOne(id);
+  async findOne(@Param('id') id: string, @Res() res: Response): Promise<Response<Parent>> {
+    const parent = await this.parentService.findOne(id);
+    return res.status(HttpStatus.OK).json(parent); // Sending structured response
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateParentDto: UpdateParentDto,
-  ): Promise<Parent> {
-    return this.parentService.update(id, updateParentDto);
+    @Res() res: Response,
+  ): Promise<Response<Parent>> {
+    const updatedParent = await this.parentService.update(id, updateParentDto);
+    return res.status(HttpStatus.OK).json(updatedParent); // Sending structured response
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): Promise<void> {
-    return this.parentService.remove(id);
+  @HttpCode(HttpStatus.OK) 
+  async remove(@Param('id') id: string, @Res() res: Response): Promise<Response<{ message: string }>> {
+    await this.parentService.remove(id);
+    return res.status(HttpStatus.OK).json({ message: 'Parent deleted successfully!' }); // Sending success message
   }
 }
+

@@ -1,24 +1,16 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from '../../entities/base.entity';
 import { Class } from '../../class/entities/class.entity';
 import { Parent } from '../../parent/entities/parent.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('student')
 export class Student extends BaseEntity {
-  @Column()
+  @PrimaryColumn()
   student_id: string;
 
   @Column()
   student_name: string;
-
-  @Column()
-  user_id: string;
-
-  @Column()
-  class_id: string;
-
-  @Column()
-  parent_id: string;
 
   @ManyToOne(() => Class)
   @JoinColumn({ name: 'class_id' })
@@ -27,4 +19,12 @@ export class Student extends BaseEntity {
   @ManyToOne(() => Parent)
   @JoinColumn({ name: 'parent_id' })
   parent: Parent;
+
+  @Column()
+  user_id: string;
+
+  @OneToOne(() => User, (user) => user.student, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+  
 }

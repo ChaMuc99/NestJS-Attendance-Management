@@ -14,7 +14,7 @@ export class CreateTeacherDto {
   // User-related fields
 
   @IsNotEmpty()
-  user_id: number;
+  user_id: string;
 
   @IsString()
   user_name: string;

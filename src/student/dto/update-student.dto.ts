@@ -12,7 +12,7 @@ export class UpdateStudentDto {
 
   @IsOptional()
   @IsString()
-  class_id?: string;
+  class_id: string;
 
   @IsOptional()
   @IsString()
