@@ -1,7 +1,38 @@
 // src/parent/dto/update-parent.dto.ts
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class UpdateParentDto {
+class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  user_name?: string;
+
+  @IsOptional()
+  @IsString()
+  user_dateofbirth?: Date;
+
+  @IsOptional()
+  @IsString()
+  user_gender?: string;
+
+  @IsOptional()
+  @IsString()
+  user_phone?: string;
+
+  @IsOptional()
+  @IsString()
+  user_email?: string;
+
+  @IsOptional()
+  @IsString()
+  user_password?: string;
+
+  @IsOptional()
+  @IsString()
+  role?: string;
+}
+
+class UpdateParentInfoDto {
   @IsOptional()
   @IsString()
   parent_id?: string;
@@ -9,8 +40,16 @@ export class UpdateParentDto {
   @IsOptional()
   @IsString()
   parent_name?: string;
+}
 
+export class UpdateParentDto {
+  @ValidateNested()
+  @Type(() => UpdateParentInfoDto)
   @IsOptional()
-  @IsNumber()
-  user_id?: number; // Ensure this matches the Parent entity type
+  parent?: UpdateParentInfoDto;
+
+  @ValidateNested()
+  @Type(() => UpdateUserDto)
+  @IsOptional()
+  user?: UpdateUserDto;
 }

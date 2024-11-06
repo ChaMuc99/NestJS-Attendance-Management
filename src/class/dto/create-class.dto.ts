@@ -5,8 +5,4 @@ export class CreateClassDto {
   @IsNotEmpty()
   @IsString()
   class_name: string;
-
-  @IsNotEmpty()
-  @IsString()
-  teacher_id: string;
 }

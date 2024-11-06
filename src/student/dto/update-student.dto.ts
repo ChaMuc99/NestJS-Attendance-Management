@@ -2,19 +2,29 @@
 import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateStudentDto {
-  @IsOptional()
-  @IsString()
   student_name?: string;
 
-  @IsOptional()
-  @IsString()
-  user_id?: string;
+  class?: {
+    class_id: string;
+    class_name: string;
+  };
 
-  @IsOptional()
-  @IsString()
-  class_id?: string;
+  parent?: {
+    parent_id: string;
+    parent_name: string;
+    user_email?: string;
+    user_dateofbirth?: Date;
+    user_gender?: string;
+    user_phone?: string;
+    user_password?: string;
+  };
 
-  @IsOptional()
-  @IsString()
-  parent_id?: string;
+  user?: {
+    user_name: string;
+    user_dateofbirth: Date;
+    user_gender: string;
+    user_phone: string;
+    user_email: string;
+    user_password: string;
+  };
 }
