@@ -31,15 +31,18 @@ export class ParentController {
   }
 
   @Get()
-  async findAll(@Res() res: Response): Promise<Response<Parent[]>> {
+  async findAll(@Res() res: Response): Promise<Response> {
     const parents = await this.parentService.findAll();
-    return res.status(HttpStatus.OK).json(parents); // Sending structured response
+    return res.status(HttpStatus.OK).json(parents);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Res() res: Response): Promise<Response<Parent>> {
+  async findOne(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response> {
     const parent = await this.parentService.findOne(id);
-    return res.status(HttpStatus.OK).json(parent); // Sending structured response
+    return res.status(HttpStatus.OK).json(parent);
   }
 
   @Put(':id')
@@ -53,10 +56,14 @@ export class ParentController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.OK) 
-  async remove(@Param('id') id: string, @Res() res: Response): Promise<Response<{ message: string }>> {
+  @HttpCode(HttpStatus.OK)
+  async remove(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response<{ message: string }>> {
     await this.parentService.remove(id);
-    return res.status(HttpStatus.OK).json({ message: 'Parent deleted successfully!' }); // Sending success message
+    return res
+      .status(HttpStatus.OK)
+      .json({ message: 'Parent deleted successfully!' }); // Sending success message
   }
 }
-

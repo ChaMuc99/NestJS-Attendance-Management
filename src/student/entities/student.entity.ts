@@ -1,4 +1,11 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { BaseEntity } from '../../entities/base.entity';
 import { Class } from '../../class/entities/class.entity';
 import { Parent } from '../../parent/entities/parent.entity';
@@ -26,5 +33,4 @@ export class Student extends BaseEntity {
   @OneToOne(() => User, (user) => user.student, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
-  
 }

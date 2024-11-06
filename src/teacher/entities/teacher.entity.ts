@@ -11,7 +11,6 @@ import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Teacher {
-
   @PrimaryColumn()
   teacher_id: string;
 
@@ -22,6 +21,6 @@ export class Teacher {
   teacher_department: string;
 
   @OneToOne(() => User, (user) => user.teacher, { eager: true })
-  @JoinColumn() 
+  @JoinColumn()
   user: User;
 }

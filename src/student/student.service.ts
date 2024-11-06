@@ -8,8 +8,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Class } from '../class/entities/class.entity';
 import { Parent } from '../parent/entities/parent.entity';
-
-
+import { StudentTransformer } from './student.transformer';
 
 @Injectable()
 export class StudentService {
@@ -21,51 +20,47 @@ export class StudentService {
   ) {}
 
   private async findOrCreateClass(classData): Promise<Class> {
-    console.log('Finding or creating class with data:', classData);
-    let classEntity = await this.classRepository.findOneBy({ class_id: classData.class_id });
+    let classEntity = await this.classRepository.findOneBy({
+      class_id: classData.class_id,
+    });
     if (!classEntity) {
       classEntity = this.classRepository.create({
         class_id: classData.class_id,
         class_name: classData.class_name,
       });
       await this.classRepository.save(classEntity);
-      console.log('New class created:', classEntity);
-    } else {
-      console.log('Existing class found:', classEntity);
     }
     return classEntity;
   }
 
   private async findOrCreateParent(parentData): Promise<Parent> {
-    console.log('Finding or creating parent with data:', parentData);
-    let parentEntity = await this.parentRepository.findOneBy({ parent_id: parentData.parent_id });
+    let parentEntity = await this.parentRepository.findOneBy({
+      parent_id: parentData.parent_id,
+    });
     if (!parentEntity) {
-      // Ensure that parent email is available for user creation
       const userEntity = await this.findOrCreateUser({
         user_name: parentData.parent_name,
-        user_email: parentData.user_email, // Ensure you have a user_email for the parent
-        user_dateofbirth: parentData.user_dateofbirth, // Optional, adjust as needed
-        user_gender: parentData.user_gender, // Optional, adjust as needed
-        user_phone: parentData.user_phone, // Optional, adjust as needed
-        user_password: parentData.user_password, // Optional, adjust as needed
+        user_email: parentData.user_email,
+        user_dateofbirth: parentData.user_dateofbirth,
+        user_gender: parentData.user_gender,
+        user_phone: parentData.user_phone,
+        user_password: parentData.user_password,
       });
 
       parentEntity = this.parentRepository.create({
         parent_id: parentData.parent_id,
         parent_name: parentData.parent_name,
-        user_id: userEntity.id, // Link the parent to the user
+        user_id: userEntity.id,
       });
       await this.parentRepository.save(parentEntity);
-      console.log('New parent created:', parentEntity);
-    } else {
-      console.log('Existing parent found:', parentEntity);
     }
     return parentEntity;
   }
 
   private async findOrCreateUser(userData): Promise<User> {
-    console.log('Finding or creating user with data:', userData);
-    let userEntity = await this.userRepository.findOne({ where: { user_email: userData.user_email } });
+    let userEntity = await this.userRepository.findOne({
+      where: { user_email: userData.user_email },
+    });
 
     if (!userEntity) {
       userEntity = this.userRepository.create({
@@ -74,76 +69,121 @@ export class StudentService {
         user_gender: userData.user_gender,
         user_phone: userData.user_phone,
         user_email: userData.user_email,
-        user_password: userData.user_password, 
-        role: 'student', // Adjust as necessary for parent or student
+        user_password: userData.user_password,
+        role: 'student',
       });
-      
       await this.userRepository.save(userEntity);
-      console.log('New user created:', userEntity);
-    } else {
-      console.log('Existing user found:', userEntity);
     }
-
     return userEntity;
   }
 
-  async createStudent(studentData): Promise<Student> {
-    console.log('Creating student with data:', studentData);
-
-    // Find or create the class
+  async createStudent(studentData): Promise<Partial<Student>> {
     const classEntity = await this.findOrCreateClass(studentData.class);
-
-    // Find or create the parent
     const parentEntity = await this.findOrCreateParent(studentData.parent);
-
-    // Find or create the user
     const userEntity = await this.findOrCreateUser(studentData.user);
 
-    // Now create the student with the user linked
     const studentEntity = this.studentRepository.create({
       student_id: studentData.student_id,
       student_name: studentData.student_name,
       class: classEntity,
       parent: parentEntity,
-      user: userEntity, // Ensure user is correctly linked
+      user: userEntity,
     });
 
-    await this.studentRepository.save(studentEntity);
-    console.log('New student created:', studentEntity);
-    
-    return studentEntity;
+    const savedStudent = await this.studentRepository.save(studentEntity);
+    return StudentTransformer.transform(savedStudent);
   }
 
-
-
-  
-
-  async findAll(): Promise<Student[]> {
-    return this.studentRepository.find();
+  async findAll(): Promise<Partial<Student>[]> {
+    const students = await this.studentRepository.find({
+      relations: ['class', 'parent', 'user'],
+      order: {
+        student_id: 'ASC',
+        created_at: 'DESC',
+      },
+    });
+    return students.map((student) => StudentTransformer.transform(student));
   }
 
-  async findOne(id: string): Promise<Student> {
+  async findOne(id: string): Promise<Partial<Student>> {
     const student = await this.studentRepository.findOne({
       where: { student_id: id },
+      relations: ['class', 'parent', 'user'],
     });
+
     if (!student) {
-      throw new NotFoundException(`Student with Id ${id} not found`);
+      throw new NotFoundException(`Student with ID ${id} not found`);
     }
-    return student;
+
+    return StudentTransformer.transform(student);
   }
 
   async update(
     id: string,
     updateStudentDto: UpdateStudentDto,
-  ): Promise<Student> {
-    await this.studentRepository.update(id, updateStudentDto);
-    return this.findOne(id);
+  ): Promise<Partial<Student>> {
+    const existingStudent = await this.studentRepository.findOne({
+      where: { student_id: id },
+      relations: ['class', 'parent', 'user'],
+    });
+
+    if (!existingStudent) {
+      throw new NotFoundException(`Student with ID ${id} not found`);
+    }
+
+    // Update class if provided
+    if (updateStudentDto.class) {
+      const classEntity = await this.findOrCreateClass(updateStudentDto.class);
+      existingStudent.class = classEntity;
+    }
+
+    // Update parent if provided
+    if (updateStudentDto.parent) {
+      const parentEntity = await this.findOrCreateParent(
+        updateStudentDto.parent,
+      );
+      existingStudent.parent = parentEntity;
+    }
+
+    // Update user if provided
+    if (updateStudentDto.user) {
+      const userEntity = await this.findOrCreateUser({
+        ...updateStudentDto.user,
+        role: 'student',
+      });
+      existingStudent.user = userEntity;
+    }
+
+    // Update basic student properties
+    if (updateStudentDto.student_name) {
+      existingStudent.student_name = updateStudentDto.student_name;
+    }
+
+    const updatedStudent = await this.studentRepository.save(existingStudent);
+    return StudentTransformer.transform(updatedStudent);
   }
 
   async remove(id: string): Promise<void> {
-    const deleteResult = await this.studentRepository.delete(id);
-    if (!deleteResult.affected) {
+    const student = await this.studentRepository.findOne({
+      where: { student_id: id },
+      relations: ['user'],
+    });
+
+    if (!student) {
       throw new NotFoundException(`Student with ID ${id} not found`);
     }
+
+    // Begin transaction
+    await this.studentRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        // Delete student first
+        await transactionalEntityManager.remove(student);
+
+        // Delete associated user if it exists
+        if (student.user) {
+          await transactionalEntityManager.remove(student.user);
+        }
+      },
+    );
   }
 }

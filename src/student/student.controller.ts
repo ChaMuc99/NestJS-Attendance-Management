@@ -1,14 +1,14 @@
-// src/student/student.controller.ts
 import {
   Controller,
   Get,
   Post,
-  Body,
-  Param,
   Put,
   Delete,
-  HttpCode,
+  Body,
+  Param,
   HttpStatus,
+  HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -20,32 +20,34 @@ export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createStudentDto: CreateStudentDto): Promise<Student> {
+  @HttpCode(201)
+  async create(
+    @Body() createStudentDto: CreateStudentDto,
+  ): Promise<Partial<Student>> {
     return this.studentService.createStudent(createStudentDto);
   }
 
   @Get()
-  findAll(): Promise<Student[]> {
+  async findAll(): Promise<Partial<Student>[]> {
     return this.studentService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Student> {
+  async findOne(@Param('id') id: string): Promise<Partial<Student>> {
     return this.studentService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateStudentDto: UpdateStudentDto,
-  ): Promise<Student> {
+  ): Promise<Partial<Student>> {
     return this.studentService.update(id, updateStudentDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: string): Promise<void> {
     return this.studentService.remove(id);
   }
 }

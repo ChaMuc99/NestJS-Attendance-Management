@@ -1,7 +1,7 @@
 // src/users/entities/user.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
 import { Teacher } from '../../teacher/entities/teacher.entity';
-import { Student } from '../../student/entities/student.entity'
+import { Student } from '../../student/entities/student.entity';
 
 @Entity()
 export class User {
@@ -34,5 +34,4 @@ export class User {
 
   @OneToOne(() => Student, (student) => student.user)
   student: Student;
-
 }

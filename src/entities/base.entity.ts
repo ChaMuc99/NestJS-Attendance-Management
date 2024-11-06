@@ -6,7 +6,6 @@ import {
 } from 'typeorm';
 
 export abstract class BaseEntity {
- 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
