@@ -11,6 +11,7 @@ export class CreateStudentDto {
     parent_name: string;
   };
   user: {
+    user_email: any;
     user_id: string;
     user_name: string;
     user_dateofbirth?: Date;

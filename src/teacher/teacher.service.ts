@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Teacher } from './entities/teacher.entity';
@@ -17,6 +17,23 @@ export class TeacherService {
   ) {}
 
   async create(createTeacherDto: CreateTeacherDto): Promise<Teacher> {
+    // Check for existing teacher with same teacher_id
+    const existingTeacher = await this.teacherRepository.findOne({
+      where: { teacher_id: createTeacherDto.teacher_id }
+    });
+
+    if (existingTeacher) {
+      throw new ConflictException(`Teacher with ID ${createTeacherDto.teacher_id} already exists`);
+    }
+
+    // Check for existing user with same email
+    const existingUser = await this.userService.findByEmail(createTeacherDto.user_email);
+    
+    if (existingUser) {
+      throw new ConflictException(`User with email ${createTeacherDto.user_email} already exists`);
+    }
+
+    // Proceed with creation if no duplicates found
     const user = await this.userService.create({
       user_email: createTeacherDto.user_email,
       user_password: createTeacherDto.user_password,
@@ -36,7 +53,6 @@ export class TeacherService {
 
     return await this.teacherRepository.save(teacher);
   }
-
   async findAll(): Promise<Teacher[]> {
     return this.teacherRepository.find();
   }
@@ -55,12 +71,33 @@ export class TeacherService {
     id: string,
     updateTeacherDto: UpdateTeacherDto,
   ): Promise<Teacher> {
-    await this.teacherRepository.update(id, updateTeacherDto);
-    return this.findOne(id);
-  }
+    const teacher = await this.findOne(id);
+  
+    // Update teacher data
+    const teacherUpdate = {
+      teacher_name: updateTeacherDto.teacher_name,
+      teacher_department: updateTeacherDto.teacher_department
+    };
+    await this.teacherRepository.update(id, teacherUpdate);
 
-  async remove(id: string): Promise<void> {
-    const deleteResult = await this.teacherRepository.delete(id);
+    // Update associated user data
+    if (teacher.user) {
+      const userUpdate: Partial<User> = {
+        user_name: updateTeacherDto.user_name,
+        user_email: updateTeacherDto.user_email,
+        user_dateofbirth: updateTeacherDto.user_dateofbirth,
+        user_gender: updateTeacherDto.user_gender,
+        user_phone: updateTeacherDto.user_phone
+      };
+      await this.userService.updateUser(teacher.user.id, userUpdate as User);
+    }
+
+    // Return updated teacher with relations
+    return await this.teacherRepository.findOne({
+      where: { teacher_id: id },
+      relations: ['user']
+    });
+  }  async remove(id: string): Promise<void> {    const deleteResult = await this.teacherRepository.delete(id);
     if (!deleteResult.affected) {
       throw new NotFoundException(`Teacher with ID ${id} not found`);
     }
