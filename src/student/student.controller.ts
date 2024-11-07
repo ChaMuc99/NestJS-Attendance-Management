@@ -14,6 +14,7 @@ import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
+import { DeleteResponse } from 'src/response.interfaces';
 
 @Controller('students')
 export class StudentController {
@@ -46,8 +47,8 @@ export class StudentController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
+  @HttpCode(HttpStatus.OK) // Changed from NO_CONTENT to OK since we're sending data
+  async remove(@Param('id') id: string): Promise<DeleteResponse> {
     return this.studentService.remove(id);
   }
 }
