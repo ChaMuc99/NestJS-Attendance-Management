@@ -26,6 +26,7 @@ export class ParentController {
   constructor(private readonly parentService: ParentService) {}
 
   @Post()
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createParentDto: CreateParentDto,

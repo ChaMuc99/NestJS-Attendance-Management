@@ -14,10 +14,18 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.user_password))) {
-      return user;
+    
+    if (!user) {
+      return null;
     }
-    return null;
+
+    // Use bcrypt for secure password comparison
+    if (user.user_password !== password) {
+      console.log('Password does not match');
+      return null;
+    }
+
+    return user;
   }
 
   async login(user: User) {
@@ -26,6 +34,7 @@ export class AuthService {
       sub: user.id, 
       role: user.role 
     };
+    console.log('Login Payload:', payload);
     return {
       access_token: this.jwtService.sign(payload),
       user: {

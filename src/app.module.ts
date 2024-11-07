@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -10,6 +10,8 @@ import { TeacherModule } from './teacher/teacher.module';
 import { ClassModule } from './class/class.module';
 import { StudentModule } from './student/student.module';
 import { AuthModule } from './auth/auth.module';
+import { UserSeeder } from './database/seeders/database.seeder.service';
+
 
 @Module({
   imports: [
@@ -28,9 +30,15 @@ import { AuthModule } from './auth/auth.module';
     TeacherModule,
     ClassModule,
     StudentModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UserSeeder],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private userSeeder: UserSeeder) {}
+
+  async onModuleInit() {
+    await this.userSeeder.seed();
+  }
+}
