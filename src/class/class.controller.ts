@@ -9,7 +9,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ClassService } from './class.service';
 import { CreateClassDto } from './dto/create-class.dto';
@@ -26,25 +26,31 @@ import { Student } from 'src/student/entities/student.entity';
 export class ClassController {
   constructor(private readonly classService: ClassService) {}
 
+  //-----------------------------------------------------------------Create Class-----------------------------------------------------//
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Roles('admin')
-  create(@Body() createClassDto: CreateClassDto): Promise<{ message: string; class: Partial<Class> }> {
+  create(
+    @Body() createClassDto: CreateClassDto,
+  ): Promise<{ message: string; class: Partial<Class> }> {
     return this.classService.create(createClassDto);
   }
 
+  //-----------------------------------------------------------------Get All Classes-----------------------------------------------------//
   @Get()
   @Roles('admin')
   findAll() {
     return this.classService.findAll();
   }
 
+  //-----------------------------------------------------------------Get Class By ID-----------------------------------------------------//
   @Get(':id')
   @Roles('admin')
   findOne(@Param('id') id: string): Promise<Partial<Class>> {
     return this.classService.findOne(id);
   }
 
+  //-----------------------------------------------------------------Update Class-----------------------------------------------------//
   @Put(':id')
   @Roles('admin')
   update(
@@ -54,6 +60,7 @@ export class ClassController {
     return this.classService.update(id, updateClassDto);
   }
 
+  //-----------------------------------------------------------------Delete Class-----------------------------------------------------//
   @Delete(':id')
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
@@ -61,11 +68,12 @@ export class ClassController {
     return this.classService.remove(id);
   }
 
-  //Get All Students in a Class
+  //---------------------------------------------------------------Get Students in Class-----------------------------------------------------//
   @Get(':id/students')
   @Roles('admin')
-  async getStudentsInClass(@Param('id') id: string): Promise<{ total: number; allstudents: Partial<Student>[]; }> {
+  async getStudentsInClass(
+    @Param('id') id: string,
+  ): Promise<{ total: number; allstudents: Partial<Student>[] }> {
     return this.classService.getStudentsInClass(id);
-  }  
-  
+  }
 }

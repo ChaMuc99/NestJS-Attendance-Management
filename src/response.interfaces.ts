@@ -1,5 +1,5 @@
 // src/response.interface.ts
 export interface DeleteResponse {
-    success: boolean;
-    message: string;
-  }
+  success: boolean;
+  message: string;
+}

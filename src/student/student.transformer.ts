@@ -52,4 +52,5 @@ export class StudentTransformer {
       updated_at: student.updated_at,
       updated_by: student.updated_by,
     };
-  }}
+  }
+}

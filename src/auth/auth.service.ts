@@ -11,10 +11,10 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
   ) {}
-
+  //---------------------------------------------------------------Validate User-----------------------------------------------------//
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userService.findByEmail(email);
-    
+
     if (!user) {
       return null;
     }
@@ -27,12 +27,12 @@ export class AuthService {
 
     return user;
   }
-
+  //-------------------------------------------------------------Login-----------------------------------------------------//
   async login(user: User) {
-    const payload = { 
-      email: user.user_email, 
-      sub: user.id, 
-      role: user.role 
+    const payload = {
+      email: user.user_email,
+      sub: user.id,
+      role: user.role,
     };
     console.log('Login Payload:', payload);
     return {
@@ -40,8 +40,8 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.user_email,
-        role: user.role
-      }
+        role: user.role,
+      },
     };
   }
 }

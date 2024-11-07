@@ -8,7 +8,8 @@ import {
   Param,
   HttpStatus,
   HttpCode,
-  NotFoundException, UseGuards
+  NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
+  //-----------------------------------------------------------------Create Student-----------------------------------------------------//
   @Post()
   @Roles('admin', 'teacher')
   @HttpCode(201)
@@ -32,6 +34,7 @@ export class StudentController {
   ): Promise<Partial<Student>> {
     return this.studentService.createStudent(createStudentDto);
   }
+  //-----------------------------------------------------------------Get All Students-----------------------------------------------------//
 
   @Get()
   @Roles('admin', 'teacher')
@@ -39,12 +42,14 @@ export class StudentController {
     return this.studentService.findAll();
   }
 
-
+  //-----------------------------------------------------------------Get Student By ID-----------------------------------------------------//
   @Get(':id')
   @Roles('admin', 'teacher')
   async findOne(@Param('id') id: string): Promise<Partial<Student>> {
     return this.studentService.findOne(id);
   }
+
+  //-----------------------------------------------------------------Update Student-----------------------------------------------------//
 
   @Put(':id')
   @Roles('admin', 'teacher')
@@ -54,6 +59,8 @@ export class StudentController {
   ): Promise<Partial<Student>> {
     return this.studentService.update(id, updateStudentDto);
   }
+
+  //-----------------------------------------------------------------Delete Student-----------------------------------------------------//
 
   @Delete(':id')
   @Roles('admin', 'teacher')

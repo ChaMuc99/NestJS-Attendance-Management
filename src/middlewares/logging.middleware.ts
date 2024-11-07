@@ -1,6 +1,10 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
-
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -9,7 +13,7 @@ export class LoggingInterceptor implements NestInterceptor {
     console.log('Request:', {
       method: request.method,
       path: request.path,
-      body: request.body
+      body: request.body,
     });
     return next.handle();
   }

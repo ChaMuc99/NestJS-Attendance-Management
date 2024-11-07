@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module'; // Import UsersModule
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [

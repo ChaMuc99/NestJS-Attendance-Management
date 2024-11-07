@@ -24,6 +24,7 @@ export class ParentService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  //-----------------------------------------------------------------Create Parent-----------------------------------------------------//
 
   async create(createParentDto: CreateParentDto): Promise<Partial<Parent>> {
     const { parent, user } = createParentDto;
@@ -61,6 +62,8 @@ export class ParentService {
     return ParentTransformer.transform(savedParent);
   }
 
+  //-----------------------------------------------------------------Get All Parents-----------------------------------------------------//
+
   async findAll(): Promise<Partial<Parent>[]> {
     const parents = await this.parentRepository.find({
       relations: ['user'],
@@ -72,6 +75,8 @@ export class ParentService {
     return parents.map((parent) => ParentTransformer.transform(parent));
   }
 
+  //-----------------------------------------------------------------Get Parent by ID-----------------------------------------------------//
+
   async findOne(id: string): Promise<Partial<Parent>> {
     const parent = await this.parentRepository.findOne({
       where: { parent_id: id },
@@ -82,6 +87,8 @@ export class ParentService {
     }
     return ParentTransformer.transform(parent);
   }
+
+  //-----------------------------------------------------------------Update Parent-----------------------------------------------------//
 
   async update(
     id: string,
@@ -118,6 +125,8 @@ export class ParentService {
     return this.findOne(id); // Return updated record with relationships
   }
 
+  //-----------------------------------------------------------------Delete Parent-----------------------------------------------------//
+
   async remove(id: string): Promise<void> {
     const deleteResult = await this.parentRepository.delete(id);
     if (!deleteResult.affected) {
@@ -125,8 +134,11 @@ export class ParentService {
     }
   }
 
-  //Get All Students of a Parent
-  async getStudentsByParentId(parentId: string): Promise<{total: number, students: Partial<Student>[]}> {
+  //-----------------------------------------------------------------Get Parent by User ID-----------------------------------------------------//
+
+  async getStudentsByParentId(
+    parentId: string,
+  ): Promise<{ total: number; students: Partial<Student>[] }> {
     const parent = await this.parentRepository.findOne({
       where: { parent_id: parentId },
       relations: ['students', 'user'],
@@ -134,11 +146,13 @@ export class ParentService {
     if (!parent) {
       throw new NotFoundException(`Parent with ID ${parentId} not found`);
     }
-    const allStudentClass = parent.students.map(student => getStudentClassTransformer.transform(student));
+    const allStudentClass = parent.students.map((student) =>
+      getStudentClassTransformer.transform(student),
+    );
 
     return {
       total: allStudentClass.length,
-      students: allStudentClass
-    }
+      students: allStudentClass,
+    };
   }
 }

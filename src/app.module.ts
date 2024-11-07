@@ -12,7 +12,6 @@ import { StudentModule } from './student/student.module';
 import { AuthModule } from './auth/auth.module';
 import { UserSeeder } from './database/seeders/database.seeder.service';
 
-
 @Module({
   imports: [
     TypeOrmModule.forRoot({

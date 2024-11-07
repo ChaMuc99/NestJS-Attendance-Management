@@ -8,7 +8,8 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  Res, UseGuards
+  Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express'; // Importing Response from express
 import { ParentService } from './parent.service';
@@ -25,6 +26,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 export class ParentController {
   constructor(private readonly parentService: ParentService) {}
 
+  //-----------------------------------------------------------------Create Parent-----------------------------------------------------//
+
   @Post()
   @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
@@ -36,12 +39,16 @@ export class ParentController {
     return res.status(HttpStatus.CREATED).json(parent); // Sending structured response
   }
 
+  //-----------------------------------------------------------------Get All Parents-----------------------------------------------------//
+
   @Get()
   @Roles('admin')
   async findAll(@Res() res: Response): Promise<Response> {
     const parents = await this.parentService.findAll();
     return res.status(HttpStatus.OK).json(parents);
   }
+
+  //-----------------------------------------------------------------Get Parent By ID-----------------------------------------------------//
 
   @Get(':id')
   @Roles('admin')
@@ -53,6 +60,8 @@ export class ParentController {
     return res.status(HttpStatus.OK).json(parent);
   }
 
+  //-----------------------------------------------------------------Update Parent-----------------------------------------------------//
+
   @Put(':id')
   @Roles('admin')
   async update(
@@ -63,6 +72,8 @@ export class ParentController {
     const updatedParent = await this.parentService.update(id, updateParentDto);
     return res.status(HttpStatus.OK).json(updatedParent); // Sending structured response
   }
+
+  //-----------------------------------------------------------------Delete Parent-----------------------------------------------------//
 
   @Delete(':id')
   @Roles('admin')
@@ -77,15 +88,13 @@ export class ParentController {
       .json({ message: 'Parent deleted successfully!' }); // Sending success message
   }
 
-  //Get all students of a parent
+  //---------------------------------------------------------------Get Students in Parent-----------------------------------------------------//
   @Get(':id/students')
-
   async ParentStudents(
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<Response> {
     const students = await this.parentService.getStudentsByParentId(id);
     return res.status(HttpStatus.OK).json(students);
-
-}
+  }
 }

@@ -13,15 +13,15 @@ export class AdminSeeder {
 
   async seed() {
     const adminEmail = 'admin@example.com';
-    
+
     const existingAdmin = await this.userRepository.findOne({
-      where: { user_email: adminEmail }
+      where: { user_email: adminEmail },
     });
 
     if (!existingAdmin) {
       const adminUser = this.userRepository.create({
         user_email: adminEmail,
-        user_password: 'AdminPassword123!', 
+        user_password: 'AdminPassword123!',
         role: 'admin',
         user_name: 'Admin',
       });

@@ -12,10 +12,10 @@ export class UserSeeder {
 
   async seed() {
     const adminEmail = 'admin@example.com';
-    
+
     // Check if admin already exists
     const existingAdmin = await this.userRepository.findOne({
-      where: { user_email: adminEmail }
+      where: { user_email: adminEmail },
     });
 
     if (!existingAdmin) {
@@ -23,11 +23,10 @@ export class UserSeeder {
         user_name: 'Admin',
         user_email: adminEmail,
         user_password: 'AdminPassword123!',
-        user_dateofbirth: new Date('1990-01-01'), 
-        user_gender: 'other', 
+        user_dateofbirth: new Date('1990-01-01'),
+        user_gender: 'other',
         role: 'admin',
         user_phone: '0000000000',
-       
       });
 
       await this.userRepository.save(adminUser);

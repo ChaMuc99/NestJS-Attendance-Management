@@ -10,5 +10,4 @@ export class UpdateStudentDto {
     user_phone?: string;
     user_email?: string;
   };
-
 }

@@ -1,5 +1,10 @@
 // src/student/student.service.ts
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
@@ -20,95 +25,98 @@ export class StudentService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-
   //-------------------------------------------------------Create a new student--------------------------------------------------------------//
 
-    async createStudent(studentData: CreateStudentDto): Promise<Partial<Student> & { message: string }> {
-      try {
-        // Check for existing student ID
-        const existingStudent = await this.studentRepository.findOne({
-          where: { student_id: studentData.student_id }
-        });
+  async createStudent(
+    studentData: CreateStudentDto,
+  ): Promise<Partial<Student> & { message: string }> {
+    try {
+      // Check for existing student ID
+      const existingStudent = await this.studentRepository.findOne({
+        where: { student_id: studentData.student_id },
+      });
 
-        if (existingStudent) {
-          throw new ConflictException(
-            `Student with ID ${studentData.student_id} already exists`
-          );
-        }
-
-        // Check if class exists first
-        const existingClass = await this.classRepository.findOneBy({
-          class_id: studentData.class.class_id,
-        });
-
-        if (!existingClass) {
-          throw new NotFoundException(
-            `Class with ID ${studentData.class.class_id} not found`,
-          );
-        }
-
-        // Check if parent exists
-        const existingParent = await this.parentRepository.findOneBy({
-          parent_id: studentData.parent.parent_id,
-        });
-
-        if (!existingParent) {
-          throw new NotFoundException(
-            `Parent with ID ${studentData.parent.parent_id} not found`,
-          );
-        }
-
-        // Check if user email already exists
-        const existingUser = await this.userRepository.findOne({
-          where: { user_email: studentData.user.user_email },
-        });
-
-        if (existingUser) {
-          throw new ConflictException(
-            `User with email ${studentData.user.user_email} already exists`,
-          );
-        }
-
-        // Create new user
-        const userEntity = this.userRepository.create({
-          ...studentData.user,
-          role: 'student',
-        });
-        await this.userRepository.save(userEntity);
-
-        // Create student with existing class and parent
-        const studentEntity = this.studentRepository.create({
-          student_id: studentData.student_id,
-          student_name: studentData.student_name,
-          class: existingClass,
-          parent: existingParent,
-          user: userEntity,
-        });
-
-        const savedStudent = await this.studentRepository.save(studentEntity);
-
-        return {
-          ...StudentTransformer.transform(savedStudent),
-          message: `Student with ID ${studentData.student_id} has been successfully created`,
-        };
-      } catch (error) {
-        // Handle specific errors
-        if (error instanceof NotFoundException || error instanceof ConflictException) {
-          throw error;
-        }
-    
-        // Handle other errors
-        throw new InternalServerErrorException({
-          message: 'Failed to create student',
-          error: error.message,
-        });
+      if (existingStudent) {
+        throw new ConflictException(
+          `Student with ID ${studentData.student_id} already exists`,
+        );
       }
-  }
 
+      // Check if class exists first
+      const existingClass = await this.classRepository.findOneBy({
+        class_id: studentData.class.class_id,
+      });
+
+      if (!existingClass) {
+        throw new NotFoundException(
+          `Class with ID ${studentData.class.class_id} not found`,
+        );
+      }
+
+      // Check if parent exists
+      const existingParent = await this.parentRepository.findOneBy({
+        parent_id: studentData.parent.parent_id,
+      });
+
+      if (!existingParent) {
+        throw new NotFoundException(
+          `Parent with ID ${studentData.parent.parent_id} not found`,
+        );
+      }
+
+      // Check if user email already exists
+      const existingUser = await this.userRepository.findOne({
+        where: { user_email: studentData.user.user_email },
+      });
+
+      if (existingUser) {
+        throw new ConflictException(
+          `User with email ${studentData.user.user_email} already exists`,
+        );
+      }
+
+      // Create new user
+      const userEntity = this.userRepository.create({
+        ...studentData.user,
+        role: 'student',
+      });
+      await this.userRepository.save(userEntity);
+
+      // Create student with existing class and parent
+      const studentEntity = this.studentRepository.create({
+        student_id: studentData.student_id,
+        student_name: studentData.student_name,
+        class: existingClass,
+        parent: existingParent,
+        user: userEntity,
+      });
+
+      const savedStudent = await this.studentRepository.save(studentEntity);
+
+      return {
+        ...StudentTransformer.transform(savedStudent),
+        message: `Student with ID ${studentData.student_id} has been successfully created`,
+      };
+    } catch (error) {
+      // Handle specific errors
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+
+      // Handle other errors
+      throw new InternalServerErrorException({
+        message: 'Failed to create student',
+        error: error.message,
+      });
+    }
+  }
 
   //-------------------------------------------------------Get all students--------------------------------------------------------------//
 
-  async findAll(): Promise<{ total: number, students: Partial<Student>[]} > {
+  async findAll(): Promise<{ total: number; students: Partial<Student>[] }> {
     const students = await this.studentRepository.find({
       relations: ['class', 'parent', 'user'],
       order: {
@@ -116,14 +124,16 @@ export class StudentService {
         created_at: 'DESC',
       },
     });
-    const transformedStudents = students.map((student) => StudentTransformer.transform(student));
+    const transformedStudents = students.map((student) =>
+      StudentTransformer.transform(student),
+    );
 
     return {
       total: students.length,
       students: transformedStudents,
-    }
+    };
   }
-  
+
   //-------------------------------------------------------Get a single student--------------------------------------------------------------//
 
   async findOne(id: string): Promise<Partial<Student>> {
@@ -149,23 +159,24 @@ export class StudentService {
       where: { student_id: id },
       relations: ['class', 'parent', 'user'],
     });
-  
+
     if (!existingStudent) {
       throw new NotFoundException(`Student with ID ${id} not found`);
     }
-  
+
     try {
       // Update user details if provided
       if (updateStudentDto.user) {
         // Update the existing user instead of creating a new one
         const existingUser = existingStudent.user;
-        
+
         // Update only the user fields that are provided
         if (updateStudentDto.user.user_name) {
           existingUser.user_name = updateStudentDto.user.user_name;
         }
         if (updateStudentDto.user.user_dateofbirth) {
-          existingUser.user_dateofbirth = updateStudentDto.user.user_dateofbirth;
+          existingUser.user_dateofbirth =
+            updateStudentDto.user.user_dateofbirth;
         }
         if (updateStudentDto.user.user_gender) {
           existingUser.user_gender = updateStudentDto.user.user_gender;
@@ -176,16 +187,16 @@ export class StudentService {
         if (updateStudentDto.user.user_email) {
           existingUser.user_email = updateStudentDto.user.user_email;
         }
-  
+
         // Save the updated user
         await this.userRepository.save(existingUser);
       }
-  
+
       // Update student name if provided
       if (updateStudentDto.student_name) {
         existingStudent.student_name = updateStudentDto.student_name;
       }
-  
+
       const updatedStudent = await this.studentRepository.save(existingStudent);
       return {
         ...StudentTransformer.transform(updatedStudent),
@@ -198,17 +209,17 @@ export class StudentService {
       });
     }
   }
-  
+
   async remove(id: string): Promise<DeleteResponse> {
     const student = await this.studentRepository.findOne({
       where: { student_id: id },
       relations: ['user'],
     });
-  
+
     if (!student) {
       throw new NotFoundException(`Student with ID ${id} not found`);
     }
-  
+
     try {
       await this.studentRepository.manager.transaction(
         async (transactionalEntityManager) => {
@@ -221,9 +232,9 @@ export class StudentService {
             console.log(`Deleting user associated with student ${id}`);
             await transactionalEntityManager.remove(student.user);
           }
-        }
+        },
       );
-  
+
       console.log(`Successfully deleted student with ID ${id}`);
       return {
         success: true,
@@ -238,6 +249,4 @@ export class StudentService {
       });
     }
   }
-
-
-} 
+}

@@ -1,4 +1,11 @@
-import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToOne,
+  JoinColumn,
+  PrimaryColumn,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '../../entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { Student } from 'src/student/entities/student.entity';
@@ -17,9 +24,7 @@ export class Parent extends BaseEntity {
   @OneToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
-  
-  @OneToMany(() => Student, student => student.parent)
+
+  @OneToMany(() => Student, (student) => student.parent)
   students: Student[];
 }
-
-
