@@ -15,6 +15,7 @@ export class StudentTransformer {
             updated_by: student.class.updated_by,
             setCreateTimestamp: student.class.setCreateTimestamp,
             setUpdateTimestamp: student.class.setUpdateTimestamp,
+            students: student.class.students,
           }
         : null,
       parent: student.parent
@@ -50,5 +51,4 @@ export class StudentTransformer {
       updated_at: student.updated_at,
       updated_by: student.updated_by,
     };
-  }
-}
+  }}
