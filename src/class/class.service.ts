@@ -17,10 +17,23 @@ export class ClassService {
     private readonly classRepository: Repository<Class>,
   ) {}
 
-  async create(createClassDto: CreateClassDto): Promise<Partial<Class>> {
+  async create(createClassDto: CreateClassDto): Promise<{ message: string, class: Partial<Class> }> {
+
+    // Check if class with the same name already exists
+    const existingClass = await this.classRepository.findOne({
+      where: { class_name: createClassDto.class_name },
+    });
+    if (existingClass) {
+      throw new ConflictException(`Class with name ${createClassDto.class_name} already exists`);
+    }
     const classEntity = this.classRepository.create(createClassDto);
     const savedEntity = await this.classRepository.save(classEntity);
-    return ClassTransformer.transform(savedEntity);
+    const transformedClass = ClassTransformer.transform(savedEntity);
+    
+    return {
+      message: 'Class created successfully!',
+      class: transformedClass
+    };
   }
 
   async findAll(): Promise<Partial<Class>[]> {
@@ -79,7 +92,7 @@ export class ClassService {
   }
 
   //Get All Students in a Class
-  async getStudentsInClass(classId: string): Promise<Partial<Student>[]> {
+  async getStudentsInClass(classId: string): Promise<{total: number, allstudents:Partial<Student>[]}> {
     const classEntity = await this.classRepository.findOne({
       where: { class_id: classId },
       relations: ['students'],
@@ -91,10 +104,17 @@ export class ClassService {
     if (!classEntity) {
       throw new NotFoundException(`Class with ID ${classId} not found`);
     }
+    if (!classEntity.students || classEntity.students.length === 0) {
+      throw new NotFoundException(`No students found in class with ID ${classId}`);
+    }
 
     const orderedStudents = classEntity.students
       .sort((a, b) => a.student_id.localeCompare(b.student_id))
       .map(student => getStudentClassTransformer.transform(student));
 
-    return orderedStudents;
-  }}
+    return {
+      total: orderedStudents.length,
+      allstudents: orderedStudents
+    }
+}
+}

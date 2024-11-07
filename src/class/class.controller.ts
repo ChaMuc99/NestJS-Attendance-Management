@@ -15,6 +15,7 @@ import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { Class } from './entities/class.entity';
 import { DeleteResponse } from 'src/response.interfaces';
+import { Student } from 'src/student/entities/student.entity';
 
 @Controller('classes')
 export class ClassController {
@@ -22,7 +23,7 @@ export class ClassController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createClassDto: CreateClassDto): Promise<Partial<Class>> {
+  create(@Body() createClassDto: CreateClassDto): Promise<{ message: string; class: Partial<Class> }> {
     return this.classService.create(createClassDto);
   }
 
@@ -52,9 +53,8 @@ export class ClassController {
 
   //Get All Students in a Class
   @Get(':id/students')
-  async getStudentsInClass(@Param('id') id: string): Promise<any[]> {
+  async getStudentsInClass(@Param('id') id: string): Promise<{ total: number; allstudents: Partial<Student>[]; }> {
     return this.classService.getStudentsInClass(id);
-  }
-  
+  }  
   
 }
