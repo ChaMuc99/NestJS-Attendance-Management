@@ -8,15 +8,20 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  Res,
+  Res, UseGuards
 } from '@nestjs/common';
 import { Response } from 'express'; // Importing Response from express
 import { ParentService } from './parent.service';
 import { CreateParentDto } from './dto/create-parent.dto';
 import { UpdateParentDto } from './dto/update-parent.dto';
 import { Parent } from './entities/parent.entity';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('parents')
+@Roles('admin')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ParentController {
   constructor(private readonly parentService: ParentService) {}
 
@@ -31,12 +36,14 @@ export class ParentController {
   }
 
   @Get()
+  @Roles('admin')
   async findAll(@Res() res: Response): Promise<Response> {
     const parents = await this.parentService.findAll();
     return res.status(HttpStatus.OK).json(parents);
   }
 
   @Get(':id')
+  @Roles('admin')
   async findOne(
     @Param('id') id: string,
     @Res() res: Response,
@@ -46,6 +53,7 @@ export class ParentController {
   }
 
   @Put(':id')
+  @Roles('admin')
   async update(
     @Param('id') id: string,
     @Body() updateParentDto: UpdateParentDto,
@@ -56,6 +64,7 @@ export class ParentController {
   }
 
   @Delete(':id')
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async remove(
     @Param('id') id: string,

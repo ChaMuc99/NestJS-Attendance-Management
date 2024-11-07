@@ -9,6 +9,7 @@ import { ParentModule } from './parent/parent.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { ClassModule } from './class/class.module';
 import { StudentModule } from './student/student.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { StudentModule } from './student/student.module';
     TeacherModule,
     ClassModule,
     StudentModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
