@@ -19,6 +19,7 @@ import { DeleteResponse } from 'src/response.interfaces';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Student } from 'src/student/entities/student.entity';
 
 @Controller('class')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -26,8 +27,9 @@ export class ClassController {
   constructor(private readonly classService: ClassService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @Roles('admin')
-  create(@Body() createClassDto: CreateClassDto) {
+  create(@Body() createClassDto: CreateClassDto): Promise<{ message: string; class: Partial<Class> }> {
     return this.classService.create(createClassDto);
   }
 
@@ -62,9 +64,8 @@ export class ClassController {
   //Get All Students in a Class
   @Get(':id/students')
   @Roles('admin')
-  async getStudentsInClass(@Param('id') id: string): Promise<any[]> {
+  async getStudentsInClass(@Param('id') id: string): Promise<{ total: number; allstudents: Partial<Student>[]; }> {
     return this.classService.getStudentsInClass(id);
-  }
-  
+  }  
   
 }

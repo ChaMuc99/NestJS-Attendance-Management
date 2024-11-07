@@ -75,4 +75,16 @@ export class ParentController {
       .status(HttpStatus.OK)
       .json({ message: 'Parent deleted successfully!' }); // Sending success message
   }
+
+  //Get all students of a parent
+  @Get(':id/students')
+
+  async ParentStudents(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const students = await this.parentService.getStudentsByParentId(id);
+    return res.status(HttpStatus.OK).json(students);
+
+}
 }

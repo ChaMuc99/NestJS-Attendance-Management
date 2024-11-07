@@ -34,10 +34,13 @@ export class StudentController {
   }
 
   @Get()
+
   @Roles('admin', 'teacher')
-  async findAll(): Promise<Partial<Student>[]> {
+
+  async findAll(): Promise<{ total: number; students: Partial<Student>[] }> {
     return this.studentService.findAll();
   }
+
 
   @Get(':id')
   @Roles('admin', 'teacher')

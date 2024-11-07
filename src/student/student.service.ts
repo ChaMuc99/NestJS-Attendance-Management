@@ -20,78 +20,95 @@ export class StudentService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
- 
-  async createStudent(studentData: CreateStudentDto): Promise<Partial<Student> & { message: string }> {
-    try {
-      // Check if class exists first
-      const existingClass = await this.classRepository.findOneBy({
-        class_id: studentData.class.class_id,
-      });
-  
-      if (!existingClass) {
-        throw new NotFoundException(
-          `Class with ID ${studentData.class.class_id} not found`,
-        );
+
+  //-------------------------------------------------------Create a new student--------------------------------------------------------------//
+
+    async createStudent(studentData: CreateStudentDto): Promise<Partial<Student> & { message: string }> {
+      try {
+        // Check for existing student ID
+        const existingStudent = await this.studentRepository.findOne({
+          where: { student_id: studentData.student_id }
+        });
+
+        if (existingStudent) {
+          throw new ConflictException(
+            `Student with ID ${studentData.student_id} already exists`
+          );
+        }
+
+        // Check if class exists first
+        const existingClass = await this.classRepository.findOneBy({
+          class_id: studentData.class.class_id,
+        });
+
+        if (!existingClass) {
+          throw new NotFoundException(
+            `Class with ID ${studentData.class.class_id} not found`,
+          );
+        }
+
+        // Check if parent exists
+        const existingParent = await this.parentRepository.findOneBy({
+          parent_id: studentData.parent.parent_id,
+        });
+
+        if (!existingParent) {
+          throw new NotFoundException(
+            `Parent with ID ${studentData.parent.parent_id} not found`,
+          );
+        }
+
+        // Check if user email already exists
+        const existingUser = await this.userRepository.findOne({
+          where: { user_email: studentData.user.user_email },
+        });
+
+        if (existingUser) {
+          throw new ConflictException(
+            `User with email ${studentData.user.user_email} already exists`,
+          );
+        }
+
+        // Create new user
+        const userEntity = this.userRepository.create({
+          ...studentData.user,
+          role: 'student',
+        });
+        await this.userRepository.save(userEntity);
+
+        // Create student with existing class and parent
+        const studentEntity = this.studentRepository.create({
+          student_id: studentData.student_id,
+          student_name: studentData.student_name,
+          class: existingClass,
+          parent: existingParent,
+          user: userEntity,
+        });
+
+        const savedStudent = await this.studentRepository.save(studentEntity);
+
+        return {
+          ...StudentTransformer.transform(savedStudent),
+          message: `Student with ID ${studentData.student_id} has been successfully created`,
+        };
+      } catch (error) {
+        // Handle specific errors
+        if (error instanceof NotFoundException || error instanceof ConflictException) {
+          throw error;
+        }
+    
+        // Handle other errors
+        throw new InternalServerErrorException({
+          message: 'Failed to create student',
+          error: error.message,
+        });
       }
-  
-      // Check if parent exists
-      const existingParent = await this.parentRepository.findOneBy({
-        parent_id: studentData.parent.parent_id,
-      });
-  
-      if (!existingParent) {
-        throw new NotFoundException(
-          `Parent with ID ${studentData.parent.parent_id} not found`,
-        );
-      }
-  
-      // Check if user email already exists
-      const existingUser = await this.userRepository.findOne({
-        where: { user_email: studentData.user.user_email },
-      });
-  
-      if (existingUser) {
-        throw new ConflictException(
-          `User with email ${studentData.user.user_email} already exists`,
-        );
-      }
-  
-      // Create new user
-      const userEntity = this.userRepository.create({
-        ...studentData.user,
-        role: 'student',
-      });
-      await this.userRepository.save(userEntity);
-  
-      // Create student with existing class and parent
-      const studentEntity = this.studentRepository.create({
-        student_id: studentData.student_id,
-        student_name: studentData.student_name,
-        class: existingClass,
-        parent: existingParent,
-        user: userEntity,
-      });
-  
-      const savedStudent = await this.studentRepository.save(studentEntity);
-  
-      return {
-        ...StudentTransformer.transform(savedStudent),
-        message: `Student with ID ${studentData.student_id} has been successfully created`,
-      };
-    } catch (error) {
-      // Handle specific errors
-      if (error instanceof NotFoundException || error instanceof ConflictException) {
-        throw error;
-      }
-      
-      // Handle other errors
-      throw new InternalServerErrorException({
-        message: 'Failed to create student',
-        error: error.message,
-      });
-    }
   }
-  async findAll(): Promise<Partial<Student>[]> {
+
+
+  //-------------------------------------------------------Get all students--------------------------------------------------------------//
+
+  async findAll(): Promise<{ total: number, students: Partial<Student>[]} > {
     const students = await this.studentRepository.find({
       relations: ['class', 'parent', 'user'],
       order: {
@@ -99,8 +116,15 @@ export class StudentService {
         created_at: 'DESC',
       },
     });
-    return students.map((student) => StudentTransformer.transform(student));
+    const transformedStudents = students.map((student) => StudentTransformer.transform(student));
+
+    return {
+      total: students.length,
+      students: transformedStudents,
+    }
   }
+  
+  //-------------------------------------------------------Get a single student--------------------------------------------------------------//
 
   async findOne(id: string): Promise<Partial<Student>> {
     const student = await this.studentRepository.findOne({
@@ -114,6 +138,8 @@ export class StudentService {
 
     return StudentTransformer.transform(student);
   }
+
+  //-------------------------------------------------------Update a student--------------------------------------------------------------//
 
   async update(
     id: string,
@@ -212,4 +238,6 @@ export class StudentService {
       });
     }
   }
+
+
 } 

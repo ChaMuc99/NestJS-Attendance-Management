@@ -30,6 +30,7 @@ export class StudentTransformer {
             user: student.parent.user,
             setCreateTimestamp: student.parent.setCreateTimestamp,
             setUpdateTimestamp: student.parent.setUpdateTimestamp,
+            students: student.parent.students,
           }
         : null,
       user: student.user
