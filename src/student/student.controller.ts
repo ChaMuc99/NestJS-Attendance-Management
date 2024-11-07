@@ -29,10 +29,9 @@ export class StudentController {
   }
 
   @Get()
-  async findAll(): Promise<Partial<Student>[]> {
+  async findAll(): Promise<{ total: number; students: Partial<Student>[] }> {
     return this.studentService.findAll();
   }
-
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Partial<Student>> {
     return this.studentService.findOne(id);

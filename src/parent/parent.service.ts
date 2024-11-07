@@ -11,6 +11,9 @@ import { UpdateParentDto } from './dto/update-parent.dto';
 import { User } from '.././users/entities/user.entity';
 import { CreateParentDto } from './dto/create-parent.dto';
 import { ParentTransformer } from './parent.transformer';
+import { Student } from 'src/student/entities/student.entity';
+import { ClassTransformer } from 'class-transformer';
+import { getStudentClassTransformer } from 'src/class/transformer/class.getStudentClassTransformer';
 
 @Injectable()
 export class ParentService {
@@ -20,6 +23,7 @@ export class ParentService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
 
   async create(createParentDto: CreateParentDto): Promise<Partial<Parent>> {
     const { parent, user } = createParentDto;
@@ -118,6 +122,23 @@ export class ParentService {
     const deleteResult = await this.parentRepository.delete(id);
     if (!deleteResult.affected) {
       throw new NotFoundException(`Parent with ID ${id} not found`);
+    }
+  }
+
+  //Get All Students of a Parent
+  async getStudentsByParentId(parentId: string): Promise<{total: number, students: Partial<Student>[]}> {
+    const parent = await this.parentRepository.findOne({
+      where: { parent_id: parentId },
+      relations: ['students', 'user'],
+    });
+    if (!parent) {
+      throw new NotFoundException(`Parent with ID ${parentId} not found`);
+    }
+    const allStudentClass = parent.students.map(student => getStudentClassTransformer.transform(student));
+
+    return {
+      total: allStudentClass.length,
+      students: allStudentClass
     }
   }
 }
