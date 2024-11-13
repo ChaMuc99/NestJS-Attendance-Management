@@ -2,7 +2,7 @@ import { Module, OnModuleInit } from '@nestjs/common';
 
 import { AdminSeeder } from './seeders/admin.seeder';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],

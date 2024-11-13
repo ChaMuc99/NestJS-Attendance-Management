@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { LoggingInterceptor } from './middlewares/logging.middleware';
+import { LoggingInterceptor } from './common/middlewares/logging.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
