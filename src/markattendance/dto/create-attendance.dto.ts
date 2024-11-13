@@ -1,4 +1,3 @@
-
 import { IsString, IsOptional, ValidateNested, IsDate } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -19,7 +18,6 @@ class ClassDto {
 }
 
 export class CreateAttendanceDto {
-
   @ValidateNested()
   @Type(() => StudentDto)
   student: StudentDto;

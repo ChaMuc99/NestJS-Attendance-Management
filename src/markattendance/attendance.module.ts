@@ -8,19 +8,13 @@ import { Class } from '../class/entities/class.entity';
 import { Teacher } from '../teacher/entities/teacher.entity';
 import { UsersModule } from '../users/users.module';
 
-
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Attendance,
-      Student,
-      Class,
-      Teacher
-    ]),
-    UsersModule
+    TypeOrmModule.forFeature([Attendance, Student, Class, Teacher]),
+    UsersModule,
   ],
   controllers: [AttendanceController],
   providers: [AttendanceService],
-  exports: [AttendanceService]
+  exports: [AttendanceService],
 })
 export class AttendanceModule {}

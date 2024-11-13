@@ -1,13 +1,12 @@
-import { 
-  Entity, 
-  Column, 
-  PrimaryColumn, 
-  CreateDateColumn, 
-  UpdateDateColumn, 
-  ManyToOne, 
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
   JoinColumn,
-  PrimaryGeneratedColumn
-
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Student } from '../../student/entities/student.entity';
 import { Class } from '../../class/entities/class.entity';
@@ -16,7 +15,7 @@ import { Teacher } from '../../teacher/entities/teacher.entity';
 
 @Entity()
 export class Attendance {
-  @PrimaryGeneratedColumn('uuid') 
+  @PrimaryGeneratedColumn('uuid')
   attendance_id: string;
 
   @ManyToOne(() => Student)

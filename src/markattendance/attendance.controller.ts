@@ -1,9 +1,9 @@
 import {
   Controller,
-  Post, 
-  Get,  
-  Put,  
-  Delete,  
+  Post,
+  Get,
+  Put,
+  Delete,
   Body,
   UseGuards,
   Param,
@@ -44,40 +44,39 @@ export class AttendanceController {
   }
 
   //----------------------------------------Update Attendance by ID-----------------------------------//
- 
+
   @Put(':id')
   @Roles('teacher', 'admin')
   async updateAttendance(
     @Param('id') id: number,
-    @Body() updateAttendanceDto: UpdateAttendanceDto
+    @Body() updateAttendanceDto: UpdateAttendanceDto,
   ) {
     return this.attendanceService.updateAttendance(id, updateAttendanceDto);
   }
-
-
 
   //----------------------------------------Delete Attendance by ID-----------------------------------//
   @Delete(':id')
   @Roles('teacher', 'admin')
   async deleteAttendance(@Param('id') id: number) {
-    return this.attendanceService.deleteAttendance(id)
+    return this.attendanceService.deleteAttendance(id);
   }
 
   //----------------------------------------Get Students by Attendance Status-----------------------------------//
   @Post('students-by-status')
   async getStudentsByAttendanceStatus(
-    @Body() filterDto: {
+    @Body()
+    filterDto: {
       class_id: string;
       attendance_date: Date;
       attendance_status: string;
-    }
+    },
   ): Promise<{ message: string; data: TransformedAttendance[] }> {
     const { class_id, attendance_date, attendance_status } = filterDto;
 
     const result = await this.attendanceService.getStudentsByAttendanceStatus(
       class_id,
       new Date(attendance_date),
-      attendance_status
+      attendance_status,
     );
 
     return result;
@@ -88,9 +87,5 @@ export class AttendanceController {
   @Roles('teacher', 'admin')
   async getAttendanceByClassId(@Param('classId') classId: number) {
     return this.attendanceService.getAttendanceByClassId(classId);
-    }
-
-    
   }
-
-
+}

@@ -1,4 +1,10 @@
-import { Injectable, Inject, UnauthorizedException, NotFoundException, Scope } from "@nestjs/common";
+import {
+  Injectable,
+  Inject,
+  UnauthorizedException,
+  NotFoundException,
+  Scope,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Attendance } from './entities/attendance.entities';
@@ -7,11 +13,14 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Student } from '../student/entities/student.entity';
 import { Class } from '../class/entities/class.entity';
-import { UsersService } from "src/users/users.service";
-import { TeacherService } from "src/teacher/teacher.service";
-import { transformAttendance, TransformedAttendance } from "./attendance.transform";
-import { UpdateAttendanceDto } from "./dto/update-attendance.dto";
-import { Teacher } from "src/teacher/entities/teacher.entity";
+import { UsersService } from 'src/users/users.service';
+import { TeacherService } from 'src/teacher/teacher.service';
+import {
+  transformAttendance,
+  TransformedAttendance,
+} from './attendance.transform';
+import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import { Teacher } from 'src/teacher/entities/teacher.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AttendanceService {
@@ -25,10 +34,12 @@ export class AttendanceService {
     @InjectRepository(Teacher)
     private teacherRepository: Repository<Teacher>,
     private usersService: UsersService,
-    @Inject(REQUEST) private request: Request
+    @Inject(REQUEST) private request: Request,
   ) {}
 
-  async createAttendance(createAttendanceDto: CreateAttendanceDto): Promise<TransformedAttendance> {
+  async createAttendance(
+    createAttendanceDto: CreateAttendanceDto,
+  ): Promise<TransformedAttendance> {
     const user = this.request.user as any;
     if (!user) {
       throw new UnauthorizedException('User not authenticated');
@@ -36,18 +47,22 @@ export class AttendanceService {
 
     // Find student
     const student = await this.studentRepository.findOne({
-      where: { student_id: createAttendanceDto.student.student_id }
+      where: { student_id: createAttendanceDto.student.student_id },
     });
     if (!student) {
-      throw new NotFoundException(`Student with ID ${createAttendanceDto.student.student_id} not found`);
+      throw new NotFoundException(
+        `Student with ID ${createAttendanceDto.student.student_id} not found`,
+      );
     }
 
     // Find class
     const classEntity = await this.classRepository.findOne({
-      where: { class_id: createAttendanceDto.class.class_id }
+      where: { class_id: createAttendanceDto.class.class_id },
     });
     if (!classEntity) {
-      throw new NotFoundException(`Class with ID ${createAttendanceDto.class.class_id} not found`);
+      throw new NotFoundException(
+        `Class with ID ${createAttendanceDto.class.class_id} not found`,
+      );
     }
 
     // Create base attendance object
@@ -63,13 +78,15 @@ export class AttendanceService {
     if (user.role === 'teacher') {
       const teacher = await this.teacherRepository.findOne({
         where: {
-          user: { id: user.id }
+          user: { id: user.id },
         },
-        relations: ['user']
+        relations: ['user'],
       });
-      
+
       if (!teacher) {
-        throw new NotFoundException(`Teacher record not found for user ID ${user.id}`);
+        throw new NotFoundException(
+          `Teacher record not found for user ID ${user.id}`,
+        );
       }
       attendance.marked_by_teacher = teacher;
     } else if (user.role === 'admin') {
@@ -92,7 +109,7 @@ export class AttendanceService {
       throw new NotFoundException('No attendance records found');
     }
 
-    return allAttendance.map(attendance => transformAttendance(attendance));
+    return allAttendance.map((attendance) => transformAttendance(attendance));
   }
   //-----------------------------------Get Attendance by ID-----------------------------------//
 
@@ -110,7 +127,10 @@ export class AttendanceService {
   }
   //-----------------------------------Update Attendance by ID-----------------------------------//
 
-  async updateAttendance(id: number, updateAttendanceDto: UpdateAttendanceDto): Promise<TransformedAttendance> {
+  async updateAttendance(
+    id: number,
+    updateAttendanceDto: UpdateAttendanceDto,
+  ): Promise<TransformedAttendance> {
     const attendance = await this.attendanceRepository.findOne({
       where: { attendance_id: id.toString() },
       relations: ['student', 'class', 'marked_by_teacher', 'marked_by_user'],
@@ -135,10 +155,11 @@ export class AttendanceService {
     return transformAttendance(updatedAttendance);
   }
 
-
   //-----------------------------------Delete Attendance by ID-----------------------------------//
 
-  async deleteAttendance(id: number): Promise<{status: string, message: string}> {
+  async deleteAttendance(
+    id: number,
+  ): Promise<{ status: string; message: string }> {
     const result = await this.attendanceRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Attendance with ID ${id} not found`);
@@ -152,43 +173,47 @@ export class AttendanceService {
 
   //-----------------------------------Get Attendance by Class ID-----------------------------------//
 
-  async getAttendanceByClassId(classId: number): Promise<TransformedAttendance[]> {
+  async getAttendanceByClassId(
+    classId: number,
+  ): Promise<TransformedAttendance[]> {
     const attendance = await this.attendanceRepository.find({
       where: { class: { class_id: classId.toString() } },
       relations: ['student', 'class', 'marked_by_teacher', 'marked_by_user'],
     });
     if (!attendance || attendance.length === 0) {
-      throw new NotFoundException(`No attendance records found for class with ID ${classId}`);
+      throw new NotFoundException(
+        `No attendance records found for class with ID ${classId}`,
+      );
     }
 
-    return attendance.map(attendance => transformAttendance(attendance));
+    return attendance.map((attendance) => transformAttendance(attendance));
   }
-
 
   //-----------------------------------Get All Students in a Class in a Specific Date-----------------------------------//
   async getStudentsByAttendanceStatus(
     class_id: string,
     attendance_date: Date,
-    attendance_status: string
-  ): Promise<{ message: string, data: TransformedAttendance[] }> {
+    attendance_status: string,
+  ): Promise<{ message: string; data: TransformedAttendance[] }> {
     const attendances = await this.attendanceRepository.find({
       where: {
         class: { class_id },
         attendance_date,
-        attendance_status
+        attendance_status,
       },
       relations: ['student', 'class', 'marked_by_teacher', 'marked_by_user'],
     });
-  
-    const transformedAttendances = attendances.map(attendance => transformAttendance(attendance));
-    
+
+    const transformedAttendances = attendances.map((attendance) =>
+      transformAttendance(attendance),
+    );
+
     const className = attendances[0]?.class?.class_name || 'Unknown';
     const formattedDate = new Date(attendance_date).toLocaleDateString();
-  
+
     return {
       message: `Total ${transformedAttendances.length} students ${attendance_status} in Class ${className} on ${formattedDate}`,
-      data: transformedAttendances
+      data: transformedAttendances,
     };
   }
-  
-}  
+}

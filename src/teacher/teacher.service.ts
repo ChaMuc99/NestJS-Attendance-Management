@@ -14,7 +14,6 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class TeacherService {
-  
   constructor(
     @InjectRepository(Teacher)
     private readonly teacherRepository: Repository<Teacher>,
@@ -124,13 +123,11 @@ export class TeacherService {
       throw new NotFoundException(`Teacher with ID ${id} not found`);
     }
   }
-//-------------------------------------------------------Get a teacher by user ID--------------------------------------------------------------//
-async findByUserId(userId: string): Promise<Teacher> {
-  return this.teacherRepository.findOne({
-    where: { user: { id: userId } },
-    relations: ['user'],
-  });
-}
-
-  
+  //-------------------------------------------------------Get a teacher by user ID--------------------------------------------------------------//
+  async findByUserId(userId: string): Promise<Teacher> {
+    return this.teacherRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['user'],
+    });
+  }
 }

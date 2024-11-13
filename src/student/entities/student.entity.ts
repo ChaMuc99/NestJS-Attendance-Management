@@ -33,5 +33,5 @@ export class Student extends BaseEntity {
   @OneToOne(() => User, (user) => user.student, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
-    attendance: any;
+  attendance: any;
 }

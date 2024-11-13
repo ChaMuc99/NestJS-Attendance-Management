@@ -19,7 +19,7 @@ class UpdateUserDto {
   @IsString()
   user_phone?: string;
 
-  @IsOptional() 
+  @IsOptional()
   @IsString()
   user_email?: string;
 

@@ -12,6 +12,8 @@ import { StudentModule } from './student/student.module';
 import { AuthModule } from './auth/auth.module';
 import { UserSeeder } from './database/seeders/database.seeder.service';
 import { AttendanceModule } from './markattendance/attendance.module';
+import { AnalyticsService } from './analytics/analytics.service';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -31,7 +33,8 @@ import { AttendanceModule } from './markattendance/attendance.module';
     ClassModule,
     StudentModule,
     AuthModule,
-    AttendanceModule
+    AttendanceModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService, UserSeeder],
