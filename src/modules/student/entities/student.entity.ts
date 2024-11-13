@@ -6,7 +6,7 @@ import {
   OneToOne,
   PrimaryColumn,
 } from 'typeorm';
-import { BaseEntity } from '../../../entities/base.entity';
+import { BaseEntity } from '../../../base/entities/base.entity';
 import { Class } from '../../class/entities/class.entity';
 import { Parent } from '../../parent/entities/parent.entity';
 import { User } from '../../users/entities/user.entity';
