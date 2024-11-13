@@ -4,13 +4,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 // Import your feature modules
-import { UsersModule } from './users/users.module';
-import { ParentModule } from './parent/parent.module';
-import { TeacherModule } from './teacher/teacher.module';
-import { ClassModule } from './class/class.module';
-import { StudentModule } from './student/student.module';
-import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { ParentModule } from './modules/parent/parent.module';
+import { TeacherModule } from './modules/teacher/teacher.module';
+import { ClassModule } from './modules/class/class.module';
+import { StudentModule } from './modules/student/student.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { UserSeeder } from './database/seeders/database.seeder.service';
+import { AttendanceModule } from './modules/markattendance/attendance.module';
+import { AnalyticsService } from './modules/analytics/analytics.service';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -30,6 +33,8 @@ import { UserSeeder } from './database/seeders/database.seeder.service';
     ClassModule,
     StudentModule,
     AuthModule,
+    AttendanceModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService, UserSeeder],
