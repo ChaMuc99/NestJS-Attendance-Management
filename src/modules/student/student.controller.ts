@@ -10,6 +10,8 @@ import {
   HttpCode,
   NotFoundException,
   UseGuards,
+  Req,
+  Logger,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -17,12 +19,14 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
 import { DeleteResponse } from 'src/response.interfaces';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/common/middlewares/guards/roles.guard';
+import { JwtAuthGuard } from 'src/common/middlewares/guards/jwt-auth.guard';
+import { request } from 'http';
 
 @Controller('students')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class StudentController {
+  private readonly logger = new Logger(StudentController.name);
   constructor(private readonly studentService: StudentService) {}
 
   //-----------------------------------------------------------------Create Student-----------------------------------------------------//
@@ -31,10 +35,11 @@ export class StudentController {
   @HttpCode(201)
   async create(
     @Body() createStudentDto: CreateStudentDto,
+    @Req() req: any
   ): Promise<Partial<Student>> {
+    console.log(this, req.user);
     return this.studentService.createStudent(createStudentDto);
-  }
-  //-----------------------------------------------------------------Get All Students-----------------------------------------------------//
+  }  //-----------------------------------------------------------------Get All Students-----------------------------------------------------//
 
   @Get()
   @Roles('admin', 'teacher')

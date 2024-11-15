@@ -1,4 +1,3 @@
-// src/class/class.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -21,31 +20,28 @@ export class ClassService {
     private readonly classRepository: Repository<Class>,
   ) {}
 
-  //-----------------------------------------------------------------Create Class-----------------------------------------------------//
-
   async create(
     createClassDto: CreateClassDto,
   ): Promise<{ message: string; class: Partial<Class> }> {
-    // Check if class with the same id already exists
     const existingClass = await this.classRepository.findOne({
       where: { class_id: createClassDto.class_id },
     });
+
     if (existingClass) {
       throw new ConflictException(
         `Class with Class ID ${createClassDto.class_id} already exists`,
       );
     }
-    const classEntity = this.classRepository.create(createClassDto);
-    const savedEntity = await this.classRepository.save(classEntity);
-    const transformedClass = ClassTransformer.transform(savedEntity);
+
+    const savedEntity = await this.classRepository.save(
+      this.classRepository.create(createClassDto),
+    );
 
     return {
       message: 'Class created successfully!',
-      class: transformedClass,
+      class: ClassTransformer.transform(savedEntity),
     };
   }
-
-  //-----------------------------------------------------------------Get All Classes-----------------------------------------------------//
 
   async findAll(): Promise<Partial<Class>[]> {
     const classes = await this.classRepository.find({
@@ -54,14 +50,12 @@ export class ClassService {
         created_at: 'DESC',
       },
     });
-    return classes.map((classEntity) =>
-      ClassTransformer.transform(classEntity),
-    );
+
+    return classes.map(ClassTransformer.transform);
   }
 
-  //-----------------------------------------------------------------Get Class by ID-----------------------------------------------------//
-
   async findOne(id: string): Promise<Partial<Class>> {
+    ``;
     const classEntity = await this.classRepository.findOne({
       where: { class_id: id },
     });
@@ -73,23 +67,18 @@ export class ClassService {
     return ClassTransformer.transform(classEntity);
   }
 
-  //-----------------------------------------------------------------Update Class-----------------------------------------------------//
-
   async update(
     id: string,
     updateClassDto: UpdateClassDto,
   ): Promise<Partial<Class>> {
-    const updateResult = await this.classRepository.update(id, updateClassDto);
+    const { affected } = await this.classRepository.update(id, updateClassDto);
 
-    if (!updateResult.affected) {
+    if (!affected) {
       throw new NotFoundException(`Class with ID ${id} not found`);
     }
 
-    const updatedEntity = await this.findOne(id);
-    return updatedEntity;
+    return this.findOne(id);
   }
-
-  ///-----------------------------------------------------------------Delete Class-----------------------------------------------------//
 
   async remove(id: string): Promise<DeleteResponse> {
     const classEntity = await this.classRepository.findOne({
@@ -101,13 +90,14 @@ export class ClassService {
       throw new NotFoundException(`Class with ID ${id} not found`);
     }
 
-    if (classEntity.students && classEntity.students.length > 0) {
+    const studentCount = classEntity.students?.length || 0;
+    if (studentCount > 0) {
       throw new ConflictException(
-        `Cannot delete class with ID ${id} because it has ${classEntity.students.length} associated students`,
+        `Cannot delete class with ID ${id} because it has ${studentCount} associated students`,
       );
     }
 
-    const deleteResult = await this.classRepository.delete(id);
+    await this.classRepository.delete(id);
 
     return {
       success: true,
@@ -115,7 +105,6 @@ export class ClassService {
     };
   }
 
-  //-----------------------------------------------------------------Get Students in Class-----------------------------------------------------//
   async getStudentsInClass(
     classId: string,
   ): Promise<{ total: number; allstudents: Partial<Student>[] }> {
@@ -130,7 +119,8 @@ export class ClassService {
     if (!classEntity) {
       throw new NotFoundException(`Class with ID ${classId} not found`);
     }
-    if (!classEntity.students || classEntity.students.length === 0) {
+
+    if (!classEntity.students?.length) {
       throw new NotFoundException(
         `No students found in class with ID ${classId}`,
       );
@@ -138,7 +128,7 @@ export class ClassService {
 
     const orderedStudents = classEntity.students
       .sort((a, b) => a.student_id.localeCompare(b.student_id))
-      .map((student) => getStudentClassTransformer.transform(student));
+      .map(getStudentClassTransformer.transform);
 
     return {
       total: orderedStudents.length,

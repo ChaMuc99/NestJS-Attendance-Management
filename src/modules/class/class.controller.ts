@@ -16,8 +16,8 @@ import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { Class } from './entities/class.entity';
 import { DeleteResponse } from 'src/response.interfaces';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/common/middlewares/guards/roles.guard';
+import { JwtAuthGuard } from 'src/common/middlewares/guards/jwt-auth.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Student } from 'src/modules/student/entities/student.entity';
 

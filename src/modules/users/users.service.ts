@@ -1,7 +1,7 @@
-// src/users/users.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,7 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>, // Inject the User repository
+    private usersRepository: Repository<User>,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -22,13 +22,23 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.usersRepository.create(createUserDto);
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(createUserDto.user_password, salt);
+    
+    const user = this.usersRepository.create({
+      ...createUserDto,
+      user_password: hashedPassword,
+    });
     return await this.usersRepository.save(user);
   }
 
   async updateUser(id: string, updatedUser: User): Promise<User | undefined> {
+    if (updatedUser.user_password) {
+      const salt = await bcrypt.genSalt();
+      updatedUser.user_password = await bcrypt.hash(updatedUser.user_password, salt);
+    }
     await this.usersRepository.update(id, updatedUser);
-    return this.getUserById(id); // Return the updated user
+    return this.getUserById(id);
   }
 
   async deleteUser(id: string): Promise<{ deleted: boolean }> {
@@ -37,15 +47,8 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | undefined> {
-    console.log(`Searching for user with email: ${email}`);
-
-    const allUsers = await this.usersRepository.find();
-
-    const user = await this.usersRepository.findOne({
+    return this.usersRepository.findOne({
       where: { user_email: email },
     });
-
-    console.log('Found user:', user);
-    return user;
   }
 }

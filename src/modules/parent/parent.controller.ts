@@ -17,8 +17,8 @@ import { CreateParentDto } from './dto/create-parent.dto';
 import { UpdateParentDto } from './dto/update-parent.dto';
 import { Parent } from './entities/parent.entity';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/common/middlewares/guards/roles.guard';
+import { JwtAuthGuard } from 'src/common/middlewares/guards/jwt-auth.guard';
 
 @Controller('parents')
 @Roles('admin')

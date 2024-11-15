@@ -15,6 +15,7 @@ import { Class } from '../class/entities/class.entity';
 import { Parent } from '../parent/entities/parent.entity';
 import { StudentTransformer } from '../../shared/transformer/student.transformer';
 import { DeleteResponse } from 'src/response.interfaces';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class StudentService {
@@ -28,64 +29,68 @@ export class StudentService {
   //-------------------------------------------------------Create a new student--------------------------------------------------------------//
 
   async createStudent(
-    studentData: CreateStudentDto,
-  ): Promise<Partial<Student> & { message: string }> {
+    createStudentDto: CreateStudentDto,
+  ): Promise<Partial<Student>> {
     try {
+      // Hash the password before saving
+      const salt = await bcrypt.genSalt();
+      createStudentDto.user.user_password = await bcrypt.hash(createStudentDto.user.user_password, salt);
+
       // Check for existing student ID
       const existingStudent = await this.studentRepository.findOne({
-        where: { student_id: studentData.student_id },
+        where: { student_id: createStudentDto.student_id },
       });
 
       if (existingStudent) {
         throw new ConflictException(
-          `Student with ID ${studentData.student_id} already exists`,
+          `Student with ID ${createStudentDto.student_id} already exists`,
         );
       }
 
       // Check if class exists first
       const existingClass = await this.classRepository.findOneBy({
-        class_id: studentData.class.class_id,
+        class_id: createStudentDto.class.class_id,
       });
 
       if (!existingClass) {
         throw new NotFoundException(
-          `Class with ID ${studentData.class.class_id} not found`,
+          `Class with ID ${createStudentDto.class.class_id} not found`,
         );
       }
 
       // Check if parent exists
       const existingParent = await this.parentRepository.findOneBy({
-        parent_id: studentData.parent.parent_id,
+        parent_id: createStudentDto.parent.parent_id,
       });
 
       if (!existingParent) {
         throw new NotFoundException(
-          `Parent with ID ${studentData.parent.parent_id} not found`,
+          `Parent with ID ${createStudentDto.parent.parent_id} not found`,
         );
       }
 
       // Check if user email already exists
       const existingUser = await this.userRepository.findOne({
-        where: { user_email: studentData.user.user_email },
+        where: { user_email: createStudentDto.user.user_email },
       });
 
       if (existingUser) {
         throw new ConflictException(
-          `User with email ${studentData.user.user_email} already exists`,
+          `User with email ${createStudentDto.user.user_email} already exists`,
         );
       }
 
       // Create new user
       const userEntity = this.userRepository.create({
-        ...studentData.user,
+        ...createStudentDto.user,
         role: 'student',
       });
       await this.userRepository.save(userEntity);
 
       // Create student with existing class and parent
       const studentEntity = this.studentRepository.create({
-        student_id: studentData.student_id,
-        student_name: studentData.student_name,
+        student_id: createStudentDto.student_id,
+        student_name: createStudentDto.student_name,
         class: existingClass,
         parent: existingParent,
         user: userEntity,
@@ -93,10 +98,7 @@ export class StudentService {
 
       const savedStudent = await this.studentRepository.save(studentEntity);
 
-      return {
-        ...StudentTransformer.transform(savedStudent),
-        message: `Student with ID ${studentData.student_id} has been successfully created`,
-      };
+      return StudentTransformer.transform(savedStudent);
     } catch (error) {
       // Handle specific errors
       if (
@@ -113,7 +115,6 @@ export class StudentService {
       });
     }
   }
-
   //-------------------------------------------------------Get all students--------------------------------------------------------------//
 
   async findAll(): Promise<{ total: number; students: Partial<Student>[] }> {

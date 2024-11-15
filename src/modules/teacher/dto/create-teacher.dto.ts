@@ -1,18 +1,7 @@
-// src/teacher/dto/create-teacher.dto.ts
-import { IsString, IsDate, IsEmail, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsDate, IsEmail, IsNotEmpty, ValidateNested } from 'class-validator';
 
-export class CreateTeacherDto {
-  @IsString()
-  teacher_id: string;
-
-  @IsString()
-  teacher_name: string;
-
-  @IsString()
-  teacher_department: string;
-
-  // User-related fields
-
+class UserDto {
   @IsNotEmpty()
   user_id: string;
 
@@ -33,4 +22,19 @@ export class CreateTeacherDto {
 
   @IsString()
   user_password: string;
+}
+
+export class CreateTeacherDto {
+  @IsString()
+  teacher_id: string;
+
+  @IsString()
+  teacher_name: string;
+
+  @IsString()
+  teacher_department: string;
+
+  @ValidateNested()
+  @Type(() => UserDto)
+  user: UserDto;
 }

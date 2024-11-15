@@ -12,21 +12,28 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
   //---------------------------------------------------------------Validate User-----------------------------------------------------//
-  async validateUser(email: string, password: string): Promise<User | null> {
+
+  async validateUser(email: string, password: string): Promise<any> {
+    console.log('Validating user:', email);
     const user = await this.userService.findByEmail(email);
-
-    if (!user) {
-      return null;
+    
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.user_password);
+      if (isMatch) {
+        const { user_password, ...result } = user;
+        return result;
+      }
     }
-
-    // Use bcrypt for secure password comparison
-    if (user.user_password !== password) {
-      console.log('Password does not match');
-      return null;
-    }
-
-    return user;
+    return null;
   }
+  
+  
+  async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
+  }
+
+  
   //-------------------------------------------------------------Login-----------------------------------------------------//
   async login(user: User) {
     const payload = {
