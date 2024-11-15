@@ -15,8 +15,8 @@ import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { Teacher } from './entities/teacher.entity';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/common/middlewares/guards/roles.guard';
+import { JwtAuthGuard } from 'src/common/middlewares/guards/jwt-auth.guard';
 import { DeleteResponse } from 'src/response.interfaces';
 
 //
@@ -29,7 +29,7 @@ export class TeacherController {
   @Post()
   @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createTeacherDto: CreateTeacherDto): Promise<Teacher> {
+  create(@Body() createTeacherDto: CreateTeacherDto): Promise<Partial<Teacher>> {
     return this.teacherService.create(createTeacherDto);
   }
 
@@ -37,7 +37,7 @@ export class TeacherController {
 
   @Get()
   @Roles('admin')
-  findAll(): Promise<Teacher[]> {
+  findAll(): Promise<Partial<Teacher>[]> {
     return this.teacherService.findAll();
   }
 

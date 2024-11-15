@@ -11,10 +11,12 @@ export class CreateStudentDto {
     parent_name: string;
   };
   user: {
-    user_email: any;
+    user_email: string;
     user_id: string;
     user_name: string;
     user_dateofbirth?: Date;
     user_gender?: string;
+    user_password: string; 
+    role: string;
   };
 }

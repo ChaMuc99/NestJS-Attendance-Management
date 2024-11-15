@@ -13,6 +13,9 @@ import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { DeleteResponse } from 'src/response.interfaces';
+import { TeacherTransformer } from 'src/shared/transformer/teacher.transformer';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class TeacherService {
@@ -20,58 +23,51 @@ export class TeacherService {
     @InjectRepository(Teacher)
     private readonly teacherRepository: Repository<Teacher>,
     private userService: UsersService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>
+  
   ) {}
 
-  //-------------------------------------------------------Create a new teacher--------------------------------------------------------------//
-
-  async create(createTeacherDto: CreateTeacherDto): Promise<Teacher> {
-    // Check for existing teacher with same teacher_id
-    const existingTeacher = await this.teacherRepository.findOne({
-      where: { teacher_id: createTeacherDto.teacher_id },
-    });
-
-    if (existingTeacher) {
-      throw new ConflictException(
-        `Teacher with ID ${createTeacherDto.teacher_id} already exists`,
+  async create(createTeacherDto: CreateTeacherDto): Promise<Partial<Teacher>> {
+    try {
+      const salt = await bcrypt.genSalt();
+      createTeacherDto.user.user_password = await bcrypt.hash(
+        createTeacherDto.user.user_password,
+        salt
       );
+  
+      // Create new user with hashed password
+      const userEntity = this.userRepository.create({
+        ...createTeacherDto.user,
+        role: 'teacher',
+      });
+      await this.userRepository.save(userEntity);
+  
+      // Create teacher entity with all required fields
+      const teacherEntity = this.teacherRepository.create({
+        teacher_id: createTeacherDto.teacher_id,
+        teacher_name: createTeacherDto.teacher_name,
+        teacher_department: createTeacherDto.teacher_department, // Make sure this is included
+        user: userEntity,
+      });
+  
+      const savedTeacher = await this.teacherRepository.save(teacherEntity);
+      return TeacherTransformer.transform(savedTeacher);
+    } catch (error) {
+      throw new InternalServerErrorException({
+        message: 'Failed to create teacher',
+        error: error.message,
+      });
     }
-
-    // Check for existing user with same email
-    const existingUser = await this.userService.findByEmail(
-      createTeacherDto.user_email,
-    );
-
-    if (existingUser) {
-      throw new ConflictException(
-        `User with email ${createTeacherDto.user_email} already exists`,
-      );
-    }
-
-    // Proceed with creation if no duplicates found
-    const user = await this.userService.create({
-      user_email: createTeacherDto.user_email,
-      user_password: createTeacherDto.user_password,
-      user_name: createTeacherDto.user_name,
-      user_dateofbirth: createTeacherDto.user_dateofbirth,
-      user_gender: createTeacherDto.user_gender,
-      user_phone: createTeacherDto.user_phone,
-      role: 'teacher',
-    });
-
-    const teacher = this.teacherRepository.create({
-      teacher_id: createTeacherDto.teacher_id,
-      teacher_name: createTeacherDto.teacher_name,
-      teacher_department: createTeacherDto.teacher_department,
-      user: user,
-    });
-
-    return await this.teacherRepository.save(teacher);
-  }
-
+  }  
+  
   //-------------------------------------------------------Get all teachers--------------------------------------------------------------//
 
-  async findAll(): Promise<Teacher[]> {
-    return this.teacherRepository.find();
+  async findAll(): Promise<Partial<Teacher>[]> {
+    const teachers = await this.teacherRepository.find({
+      relations: ['user']
+    });
+    return teachers.map(teacher => TeacherTransformer.transform(teacher));
   }
 
   //-------------------------------------------------------Get a teacher by ID--------------------------------------------------------------//
@@ -127,18 +123,18 @@ export class TeacherService {
       where: { teacher_id: id },
       relations: ['user'],
     });
-  
+
     if (!teacher) {
       throw new NotFoundException(`Teacher with ID ${id} not found`);
     }
-  
+
     try {
       await this.teacherRepository.manager.transaction(
         async (transactionalEntityManager) => {
           // Delete teacher first to remove the foreign key reference
           console.log(`Deleting teacher with ID ${id}`);
           await transactionalEntityManager.remove(teacher);
-  
+
           // Safely delete the user
           if (teacher.user && teacher.user.role === 'teacher') {
             console.log(`Deleting user associated with teacher ${id}`);
@@ -146,7 +142,7 @@ export class TeacherService {
           }
         },
       );
-  
+
       console.log(`Successfully deleted teacher with ID ${id}`);
       return {
         success: true,
@@ -161,8 +157,7 @@ export class TeacherService {
       });
     }
   }
-  
-  
+
   //-------------------------------------------------------Get a teacher by user ID--------------------------------------------------------------//
   async findByUserId(userId: string): Promise<Teacher> {
     return this.teacherRepository.findOne({

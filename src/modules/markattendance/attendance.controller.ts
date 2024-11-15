@@ -11,8 +11,8 @@ import {
 } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
+import { JwtAuthGuard } from '../../common/middlewares/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/middlewares/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { TransformedAttendance } from '../../shared/transformer/attendance.transform';

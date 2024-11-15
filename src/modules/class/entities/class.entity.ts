@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Student } from '../../student/entities/student.entity';
-import { BaseEntity } from '../../../entities/base.entity';
+import { BaseEntity } from '../../../base/entities/base.entity';
 
 @Entity('class')
 export class Class extends BaseEntity {

@@ -16,6 +16,7 @@ import { Student } from 'src/modules/student/entities/student.entity';
 import { ClassTransformer } from 'class-transformer';
 import { getStudentClassTransformer } from 'src/shared/transformer/class.getStudentClassTransformer';
 import { DeleteResponse } from 'src/response.interfaces';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ParentService {
@@ -29,42 +30,63 @@ export class ParentService {
   //-----------------------------------------------------------------Create Parent-----------------------------------------------------//
 
   async create(createParentDto: CreateParentDto): Promise<Partial<Parent>> {
-    const { parent, user } = createParentDto;
+    try {
+      // Check if parent ID already exists
+      const existingParent = await this.parentRepository.findOne({
+        where: { parent_id: createParentDto.parent.parent_id },
+      });
 
-    const existingParent = await this.parentRepository.findOne({
-      where: { parent_id: parent.parent_id },
-    });
+      if (existingParent) {
+        throw new ConflictException(
+          `Parent with ID ${createParentDto.parent.parent_id} already exists`,
+        );
+      }
 
-    if (existingParent) {
-      throw new ConflictException(
-        `Parent with ID ${parent.parent_id} already exists.`,
+      // Check if user email already exists
+      const existingUser = await this.userRepository.findOne({
+        where: { user_email: createParentDto.user.user_email },
+      });
+
+      if (existingUser) {
+        throw new ConflictException(
+          `User with email ${createParentDto.user.user_email} already exists`,
+        );
+      }
+
+      // Hash the password
+      const salt = await bcrypt.genSalt();
+      createParentDto.user.user_password = await bcrypt.hash(
+        createParentDto.user.user_password,
+        salt
       );
+
+      // Create new user
+      const userEntity = this.userRepository.create({
+        ...createParentDto.user,
+        role: 'parent',
+      });
+      await this.userRepository.save(userEntity);
+
+      // Create parent with user
+      const parentEntity = this.parentRepository.create({
+        parent_id: createParentDto.parent.parent_id,
+        parent_name: createParentDto.parent.parent_name,
+        user: userEntity,
+      });
+
+      const savedParent = await this.parentRepository.save(parentEntity);
+      return ParentTransformer.transform(savedParent);
+
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw new InternalServerErrorException({
+        message: 'Failed to create parent',
+        error: error.message,
+      });
     }
-
-    const newUser = this.userRepository.create({
-      user_name: user.user_name,
-      user_dateofbirth: user.user_dateofbirth,
-      user_gender: user.user_gender,
-      user_phone: user.user_phone,
-      user_email: user.user_email,
-      user_password: user.user_password,
-      role: user.role,
-    });
-
-    const savedUser = await this.userRepository.save(newUser);
-
-    const newParent = this.parentRepository.create({
-      parent_id: parent.parent_id,
-      parent_name: parent.parent_name,
-      user_id: savedUser.id,
-      user: savedUser,
-    });
-
-    const savedParent = await this.parentRepository.save(newParent);
-    return ParentTransformer.transform(savedParent);
-  }
-
-  //-----------------------------------------------------------------Get All Parents-----------------------------------------------------//
+  }  //-----------------------------------------------------------------Get All Parents-----------------------------------------------------//
 
   async findAll(): Promise<Partial<Parent>[]> {
     const parents = await this.parentRepository.find({
@@ -134,18 +156,18 @@ export class ParentService {
       where: { parent_id: id },
       relations: ['user'],
     });
-  
+
     if (!parent) {
       throw new NotFoundException(`Parent with ID ${id} not found`);
     }
-  
+
     try {
       await this.parentRepository.manager.transaction(
         async (transactionalEntityManager) => {
           // Delete parent first to remove the foreign key reference
           console.log(`Deleting parent with ID ${id}`);
           await transactionalEntityManager.remove(parent);
-  
+
           // Safely delete the user
           if (parent.user && parent.user.role === 'parent') {
             console.log(`Deleting user associated with parent ${id}`);
@@ -153,7 +175,7 @@ export class ParentService {
           }
         },
       );
-  
+
       console.log(`Successfully deleted parent with ID ${id}`);
       return {
         success: true,
@@ -168,7 +190,6 @@ export class ParentService {
       });
     }
   }
-  
 
   //-----------------------------------------------------------------Get Student by Parent ID-----------------------------------------------------//
 
